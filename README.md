@@ -1,1 +1,1 @@
-# AndroBugs2.0
+# Motan - MObile application sTatic ANalysis
