@@ -2,7 +2,7 @@
 
 import logging
 
-from androguard.core.analysis.analysis import ClassAnalysis, MethodClassAnalysis
+from androguard.core.analysis.analysis import MethodClassAnalysis
 from androguard.core.bytecodes.dvm import EncodedMethod
 
 import motan.categories as categories
@@ -31,7 +31,6 @@ class JavascriptEnabled(categories.IManifestVulnerability):
                 return
 
             for caller in target_method.get_xref_from():
-                caller_class: ClassAnalysis = caller[0]
                 caller_method: EncodedMethod = caller[1]
                 offset_in_caller_code: int = caller[2]
 
@@ -44,7 +43,7 @@ class JavascriptEnabled(categories.IManifestVulnerability):
                 self.logger.debug("")
                 self.logger.debug(
                     f"This is the target method invocation "
-                    f"(found in class '{caller_class.get_vm_class().get_name()}'): "
+                    f"(found in class '{caller_method.get_class_name()}'): "
                     f"{caller_method.get_instruction(target_method_pos).get_name()} "
                     f"{caller_method.get_instruction(target_method_pos).get_output()}"
                 )
@@ -85,10 +84,9 @@ class JavascriptEnabled(categories.IManifestVulnerability):
                 if result.get_result()[1] == 1:
                     # TODO
                     self.logger.info(
-                        f"JavaScript is enabled in class "
-                        f"'{caller_class.get_vm_class().get_name()}'"
+                        "JavaScript is enabled in class "
+                        f"'{caller_method.get_class_name()}'"
                     )
-
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"
