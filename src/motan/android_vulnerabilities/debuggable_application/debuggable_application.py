@@ -3,16 +3,16 @@
 import logging
 
 import motan.categories as categories
-from motan.analysis import Analysis
+from motan.analysis import AndroidAnalysis
 
 
 class DebuggableApplication(categories.IManifestVulnerability):
     def __init__(self):
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
 
-    def check_vulnerability(self, analysis_info: Analysis):
-        self.logger.info('Checking "{0}" vulnerability'.format(self.__class__.__name__))
+    def check_vulnerability(self, analysis_info: AndroidAnalysis):
+        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             debuggable = analysis_info.get_apk_analysis().get_attribute_value(

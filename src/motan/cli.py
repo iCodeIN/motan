@@ -26,6 +26,12 @@ def get_cmd_args(args: List[str] = None):
         help="The path to the mobile application to analyze",
     )
     parser.add_argument(
+        "-i",
+        "--ignore-libs",
+        action="store_true",
+        help="Ignore known third party libraries during the vulnerability analysis",
+    )
+    parser.add_argument(
         "-p",
         "--show-progress",
         action="store_true",
@@ -41,7 +47,7 @@ def main():
     if arguments.app_file:
         arguments.app_file = arguments.app_file.strip(" '\"")
 
-    perform_analysis(arguments.app_file, arguments.interactive)
+    perform_analysis(arguments.app_file, arguments.ignore_libs, arguments.interactive)
 
 
 if __name__ == "__main__":

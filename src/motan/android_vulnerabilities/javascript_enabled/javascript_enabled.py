@@ -6,21 +6,22 @@ from androguard.core.analysis.analysis import MethodClassAnalysis
 from androguard.core.bytecodes.dvm import EncodedMethod
 
 import motan.categories as categories
-from motan.analysis import Analysis
+from motan.analysis import AndroidAnalysis
 from motan.util import RegisterAnalyzer
 
 
 class JavascriptEnabled(categories.IManifestVulnerability):
     def __init__(self):
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
 
-    def check_vulnerability(self, analysis_info: Analysis):
-        self.logger.info('Checking "{0}" vulnerability'.format(self.__class__.__name__))
+    def check_vulnerability(self, analysis_info: AndroidAnalysis):
+        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             dx = analysis_info.get_dex_analysis()
 
+            # The target method is the WebView API that enables JavaScript.
             target_method: MethodClassAnalysis = dx.get_method_analysis_by_name(
                 "Landroid/webkit/WebSettings;", "setJavaScriptEnabled", "(Z)V"
             )
@@ -30,9 +31,23 @@ class JavascriptEnabled(categories.IManifestVulnerability):
             if not target_method:
                 return
 
+            # The list of methods that contain the vulnerability. After the methods are
+            # added to this list, the duplicates will be removed.
+            vulnerable_methods = []
+
+            # Check all the places where the target method is used, and put the caller
+            # method in the list with the vulnerabilities if all the conditions are met.
             for caller in target_method.get_xref_from():
                 caller_method: EncodedMethod = caller[1]
                 offset_in_caller_code: int = caller[2]
+
+                # Ignore excluded methods (if any).
+                if analysis_info.ignore_libs:
+                    if any(
+                        caller_method.get_class_name().startswith(prefix)
+                        for prefix in analysis_info.ignored_classes_prefixes
+                    ):
+                        continue
 
                 # Get the position (of the target_method invocation) from the offset
                 # value.
@@ -82,11 +97,14 @@ class JavascriptEnabled(categories.IManifestVulnerability):
 
                 # 1 means that the flag is enabled.
                 if result.get_result()[1] == 1:
-                    # TODO
-                    self.logger.info(
-                        "JavaScript is enabled in class "
-                        f"'{caller_method.get_class_name()}'"
-                    )
+                    vulnerable_methods.append(caller_method)
+
+            # Iterate over a list with the unique vulnerable methods.
+            for method in {str(m): m for m in vulnerable_methods}.values():
+                # TODO
+                self.logger.info(
+                    f"JavaScript is enabled in class '{method.get_class_name()}'"
+                )
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"
