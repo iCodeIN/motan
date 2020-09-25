@@ -3,7 +3,7 @@
 import logging
 import os
 from abc import ABC
-from typing import Union, List
+from typing import Optional, List
 
 from androguard.core.analysis.analysis import Analysis as AndroguardAnalysis
 from androguard.core.bytecodes.apk import APK
@@ -25,11 +25,16 @@ class BaseAnalysis(ABC):
 
 class AndroidAnalysis(BaseAnalysis):
     def __init__(
-        self, apk_path: str, ignore_libs: bool = False, interactive: bool = False
+        self,
+        apk_path: str,
+        language: str,
+        ignore_libs: bool = False,
+        interactive: bool = False,
     ):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
         self.apk_path: str = apk_path
+        self.language: str = language
         self.ignore_libs: bool = ignore_libs
         self.interactive: bool = interactive
 
@@ -40,8 +45,8 @@ class AndroidAnalysis(BaseAnalysis):
         # The list of vulnerabilities already checked for this application.
         self.checked_vulnerabilities: List[str] = []
 
-        self._apk_analysis: Union[APK, None] = None
-        self._dex_analysis: Union[AndroguardAnalysis, None] = None
+        self._apk_analysis: Optional[APK] = None
+        self._dex_analysis: Optional[AndroguardAnalysis] = None
 
         # Check if the apk file to analyze is a valid file.
         if not os.path.isfile(self.apk_path):
@@ -55,6 +60,9 @@ class AndroidAnalysis(BaseAnalysis):
                     util.get_libs_to_ignore(),
                 )
             )
+
+        self.logger.info(f"Analyzing Android application '{apk_path}'")
+        self.perform_androguard_analysis()
 
     def perform_androguard_analysis(self) -> None:
         self._apk_analysis, _, self._dex_analysis = AnalyzeAPK(self.apk_path)
@@ -73,8 +81,11 @@ class AndroidAnalysis(BaseAnalysis):
 
 
 class IOSAnalysis(BaseAnalysis):
-    def __init__(self, ipa_path: str, interactive: bool = False):
+    def __init__(self, ipa_path: str, language: str, interactive: bool = False):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
         self.ipa_path: str = ipa_path
+        self.language: str = language
         self.interactive: bool = interactive
+
+        self.logger.info(f"Analyzing iOS application '{ipa_path}'")

@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
+import json
 import logging
 import os
 from datetime import datetime
+from typing import List
 
 from motan import util
 from motan.analysis import AndroidAnalysis, IOSAnalysis
 from motan.manager import AndroidVulnerabilityManager, IOSVulnerabilityManager
+from motan.vulnerability import VulnerabilityDetails
 
 log_level = os.environ.get("LOG_LEVEL", logging.INFO)
 
@@ -25,7 +28,10 @@ logging.getLogger("androguard").level = logging.ERROR
 
 
 def perform_analysis(
-    input_app_path: str, ignore_libs: bool = False, interactive: bool = False
+    input_app_path: str,
+    language: str,
+    ignore_libs: bool = False,
+    interactive: bool = False,
 ):
     # Make sure the file to analyze is a valid file.
     if not os.path.isfile(input_app_path):
@@ -60,17 +66,17 @@ def perform_analysis(
 
     if platform == "Android":
         manager = AndroidVulnerabilityManager()
-        analysis = AndroidAnalysis(input_app_path, ignore_libs, interactive)
+        analysis = AndroidAnalysis(input_app_path, language, ignore_libs, interactive)
 
     elif platform == "iOS":
         manager = IOSVulnerabilityManager()
-        analysis = IOSAnalysis(input_app_path, interactive)
+        analysis = IOSAnalysis(input_app_path, language, interactive)
 
     else:
         logger.critical(f"Unknown platform '{platform}'")
         raise ValueError(f"Unknown platform '{platform}'")
 
-    logging.info(f"Analyzing {platform} application '{input_app_path}'")
+    found_vulnerabilities: List[VulnerabilityDetails] = []
 
     vulnerability_progress = util.show_list_progress(
         manager.get_all_vulnerability_checks(),
@@ -79,13 +85,15 @@ def perform_analysis(
         description="Checking vulnerabilities",
     )
 
-    for vulnerability in vulnerability_progress:
+    for item in vulnerability_progress:
         try:
             if interactive:
                 vulnerability_progress.set_description(
-                    f"Checking vulnerabilities ({vulnerability.name})"
+                    f"Checking vulnerabilities ({item.name})"
                 )
-            vulnerability.plugin_object.check_vulnerability(analysis)
+            vulnerability_details = item.plugin_object.check_vulnerability(analysis)
+            if vulnerability_details:
+                found_vulnerabilities.append(vulnerability_details)
         except Exception as e:
             logger.critical(f"Error during vulnerability analysis: {e}", exc_info=True)
             raise
@@ -93,3 +101,12 @@ def perform_analysis(
     # Calculate the total time (in seconds) needed for the analysis.
     analysis_duration = datetime.now() - analysis_start
     logger.info(f"Analysis duration: {analysis_duration.total_seconds():.0f} seconds")
+
+    vulnerabilities_json = VulnerabilityDetails.Schema().dumps(
+        found_vulnerabilities, many=True
+    )
+
+    # TODO: save results into a file?
+    logger.info(
+        f"Analysis results:\n{json.dumps(json.loads(vulnerabilities_json), indent=4)}"
+    )

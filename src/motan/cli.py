@@ -14,6 +14,8 @@ def get_cmd_args(args: List[str] = None):
     :return: The command line needed parameters.
     """
 
+    languages = ["en", "it"]
+
     parser = argparse.ArgumentParser(
         prog="python3 -m motan.cli",
         description="Find the security vulnerabilities of a mobile application "
@@ -24,6 +26,14 @@ def get_cmd_args(args: List[str] = None):
         type=str,
         metavar="FILE",
         help="The path to the mobile application to analyze",
+    )
+    parser.add_argument(
+        "-l",
+        "--language",
+        choices=languages,
+        help="The language used for the vulnerabilities. "
+        f"Allowed values are: {', '.join(languages)}",
+        default="en",
     )
     parser.add_argument(
         "-i",
@@ -47,7 +57,15 @@ def main():
     if arguments.app_file:
         arguments.app_file = arguments.app_file.strip(" '\"")
 
-    perform_analysis(arguments.app_file, arguments.ignore_libs, arguments.interactive)
+    if arguments.language:
+        arguments.language = arguments.language.strip(" '\"")
+
+    perform_analysis(
+        arguments.app_file,
+        arguments.language,
+        arguments.ignore_libs,
+        arguments.interactive,
+    )
 
 
 if __name__ == "__main__":

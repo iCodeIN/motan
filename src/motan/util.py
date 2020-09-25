@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # to show a progress bar. When setting "interactive=False", no progress bar will be
 # shown. While using this method, no other code should write to standard output.
 def show_list_progress(
-    the_list: list,
+    the_list: Iterable,
     interactive: bool = False,
     unit: str = "unit",
     description: str = None,
@@ -51,7 +51,9 @@ def get_non_empty_lines_from_file(file_name: str) -> List[str]:
 def get_libs_to_ignore() -> List[str]:
     return get_non_empty_lines_from_file(
         os.path.join(
-            os.path.dirname(__file__), "resources", "android_libs_to_ignore.txt"
+            os.path.dirname(os.path.realpath(__file__)),
+            "resources",
+            "android_libs_to_ignore.txt",
         )
     )
 
