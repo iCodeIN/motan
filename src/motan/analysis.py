@@ -27,7 +27,7 @@ class AndroidAnalysis(BaseAnalysis):
     def __init__(
         self,
         apk_path: str,
-        language: str,
+        language: str = "en",
         ignore_libs: bool = False,
         interactive: bool = False,
     ):
@@ -81,7 +81,7 @@ class AndroidAnalysis(BaseAnalysis):
 
 
 class IOSAnalysis(BaseAnalysis):
-    def __init__(self, ipa_path: str, language: str, interactive: bool = False):
+    def __init__(self, ipa_path: str, language: str = "en", interactive: bool = False):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
         self.ipa_path: str = ipa_path

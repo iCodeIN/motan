@@ -83,9 +83,11 @@ class InsecureConnections(categories.ICodeVulnerability):
             # strings, and put the caller method in the list with the vulnerabilities
             # if all the conditions are met.
             for string, string_analysis in dx.get_strings_analysis().items():
-                # The list of methods that contain the vulnerability. After the methods
-                # are added to this list, the duplicates will be removed.
-                vulnerable_methods = []
+                # The list of methods that contain the vulnerability. The key is the
+                # full method signature where the vulnerable code was found, while the
+                # value is the signature of the vulnerable API/other info about the
+                # vulnerability.
+                vulnerable_methods = {}
 
                 url = re.search(r"http://(\S+)", string)
                 url = url.group(0) if url else None
@@ -105,18 +107,14 @@ class InsecureConnections(categories.ICodeVulnerability):
                             ):
                                 continue
 
-                        vulnerable_methods.append(caller_method)
+                        vulnerable_methods[
+                            f"{caller_method.get_class_name()}->"
+                            f"{caller_method.get_name()}{caller_method.get_descriptor()}"
+                        ] = url
 
-                # Iterate over a list with the unique vulnerable methods (for each url).
-                for method in {str(m): m for m in vulnerable_methods}.values():
+                for key, value in vulnerable_methods.items():
                     vulnerability_found = True
-                    details.code.append(
-                        vuln.VulnerableCode(
-                            url,
-                            f"{method.get_class_name()}->"
-                            f"{method.get_name()}{method.get_descriptor()}",
-                        )
-                    )
+                    details.code.append(vuln.VulnerableCode(value, key))
 
             if vulnerability_found:
                 return details

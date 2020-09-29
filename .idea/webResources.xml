@@ -7,6 +7,9 @@
           <resourceRoots>
             <path value="file://$PROJECT_DIR$/.github" />
             <path value="file://$PROJECT_DIR$/.github/workflows" />
+            <path value="file://$PROJECT_DIR$/src/motan/resources" />
+            <path value="file://$PROJECT_DIR$/src/test/test_resources" />
+            <path value="file://$PROJECT_DIR$/src/test/test_resources/android-app-vulnerability-benchmarks" />
           </resourceRoots>
         </entryData>
       </entry>

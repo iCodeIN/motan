@@ -13,7 +13,7 @@ from motan.analysis import AndroidAnalysis
 from motan.util import RegisterAnalyzer
 
 
-class JavaScriptEnabled(categories.IManifestVulnerability):
+class AllowAllHostnames(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -34,9 +34,13 @@ class JavaScriptEnabled(categories.IManifestVulnerability):
 
             dx = analysis_info.get_dex_analysis()
 
-            # The target method is the WebView API that enables JavaScript.
+            # The target method is the one setting the HostnameVerifier (however this
+            # method is deprecated since Android API 22):
+            # https://developer.android.com/reference/org/apache/http/conn/ssl/SSLSocketFactory
             target_method: MethodClassAnalysis = dx.get_method_analysis_by_name(
-                "Landroid/webkit/WebSettings;", "setJavaScriptEnabled", "(Z)V"
+                "Lorg/apache/http/conn/ssl/SSLSocketFactory;",
+                "setHostnameVerifier",
+                "(Lorg/apache/http/conn/ssl/X509HostnameVerifier;)V",
             )
 
             # The target method was not found, there is no reason to continue checking
@@ -49,8 +53,6 @@ class JavaScriptEnabled(categories.IManifestVulnerability):
             # the signature of the vulnerable API/other info about the vulnerability.
             vulnerable_methods = {}
 
-            # Check all the places where the target method is used, and put the caller
-            # method in the list with the vulnerabilities if all the conditions are met.
             for caller in target_method.get_xref_from():
                 caller_method: EncodedMethod = caller[1]
                 offset_in_caller_code: int = caller[2]
@@ -84,8 +86,8 @@ class JavaScriptEnabled(categories.IManifestVulnerability):
                     f"Register with interesting param: {interesting_register}"
                 )
                 self.logger.debug(
-                    "Going backwards in the list of instructions to check if "
-                    "the register's value is constant..."
+                    "Going backwards in the list of instructions to check the "
+                    "register's value..."
                 )
 
                 off = 0
@@ -105,16 +107,37 @@ class JavaScriptEnabled(categories.IManifestVulnerability):
                     register_analyzer.get_last_instruction_register_to_value_mapping()
                 )
 
+                try:
+                    if result.is_class_container(-2):
+                        hostname_verifier_value = result.get_result()[
+                            -2
+                        ].get_class_name()
+                    else:
+                        hostname_verifier_value = result.get_result()[
+                            -2
+                        ].get_full_name()
+                except Exception:
+                    hostname_verifier_value = None
+
                 self.logger.debug(
-                    f"{interesting_register} value is {result.get_result()[-2]}"
+                    f"{interesting_register} value is {hostname_verifier_value}"
                 )
 
-                # 1 means that the flag is enabled.
-                if result.get_result()[-2] == 1:
+                # Check if hostname_verifier_value is vulnerable.
+                if hostname_verifier_value in [
+                    "Lorg/apache/http/conn/ssl/AllowAllHostnameVerifier;",
+                    "Lorg/apache/http/conn/ssl/SSLSocketFactory;->"
+                    "ALLOW_ALL_HOSTNAME_VERIFIER "
+                    "Lorg/apache/http/conn/ssl/X509HostnameVerifier;",
+                ]:
                     vulnerable_methods[
                         f"{caller_method.get_class_name()}->"
                         f"{caller_method.get_name()}{caller_method.get_descriptor()}"
-                    ] = "Landroid/webkit/WebSettings;->setJavaScriptEnabled(Z)V"
+                    ] = (
+                        "Lorg/apache/http/conn/ssl/SSLSocketFactory;->"
+                        "setHostnameVerifier"
+                        "(Lorg/apache/http/conn/ssl/X509HostnameVerifier;)V"
+                    )
 
             for key, value in vulnerable_methods.items():
                 vulnerability_found = True

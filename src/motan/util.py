@@ -9,7 +9,7 @@ from typing import Iterable, List
 
 from androguard.core.bytecodes import dvm
 from androguard.core.bytecodes.apk import APK
-from androguard.core.bytecodes.dvm import Instruction
+from androguard.core.bytecodes.dvm import Instruction, ClassDefItem
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -82,6 +82,13 @@ def check_valid_ipa_file(input_file: str):
         raise ValueError("This file is not a valid ipa file")
 
 
+def is_class_implementing_interfaces(clazz: ClassDefItem, interfaces: Iterable[str]):
+    """
+    Check if a class is implementing a specific list of interfaces.
+    """
+    return all(interface in clazz.get_interfaces() for interface in interfaces)
+
+
 class RegisterAnalyzer(object):
     class Stack:
         def __init__(self):
@@ -106,6 +113,13 @@ class RegisterAnalyzer(object):
 
         def get_class_index(self):
             return self._class_index
+
+    class VariableContainer(object):
+        def __init__(self, full_name: str):
+            self._full_name = full_name
+
+        def get_full_name(self):
+            return self._full_name
 
     class Result(object):
         def __init__(self, result: list):
@@ -212,15 +226,22 @@ class RegisterAnalyzer(object):
                 # This is not a constant value, so the value it's known only at runtime.
                 self._register_values[register_number] = None
 
-            # [aget], [aget-xx], [iget], [iget-xx], [sget], [sget-xx]
-            elif (
-                (0x44 <= op_code <= 0x4A)
-                or (0x52 <= op_code <= 0x58)
-                or (0x60 <= op_code <= 0x66)
-            ):
+            # [aget], [aget-xx]
+            elif 0x44 <= op_code <= 0x4A:
                 register_number = operands[0][1]
                 # This is not a constant value, so the value it's known only at runtime.
                 self._register_values[register_number] = None
+
+            # [iget], [iget-xx], [sget], [sget-xx]
+            elif (0x52 <= op_code <= 0x58) or (0x60 <= op_code <= 0x66):
+                register_number = operands[0][1]
+                # This is not a constant value, so the value it's known only at runtime,
+                # however we can save the variable name (which sometimes is a known
+                # constant value). The variable name is the last value.
+                full_variable_name = operands[-1][2]
+                self._register_values[
+                    register_number
+                ] = RegisterAnalyzer.VariableContainer(full_variable_name)
 
             # [new-instance]
             elif op_code == 0x22:

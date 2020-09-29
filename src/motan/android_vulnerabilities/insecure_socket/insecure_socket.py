@@ -12,7 +12,7 @@ from motan import vulnerability as vuln
 from motan.analysis import AndroidAnalysis
 
 
-class ExternalStorage(categories.ICodeVulnerability):
+class InsecureSocket(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -33,11 +33,11 @@ class ExternalStorage(categories.ICodeVulnerability):
 
             dx = analysis_info.get_dex_analysis()
 
-            # The target method is the Android API that accesses the external storage.
+            # The target method is the insecure socket.
             target_method: MethodClassAnalysis = dx.get_method_analysis_by_name(
-                "Landroid/os/Environment;",
-                "getExternalStorageDirectory",
-                "()Ljava/io/File;",
+                "Landroid/net/SSLCertificateSocketFactory;",
+                "getInsecure",
+                "(I Landroid/net/SSLSessionCache;)Ljavax/net/ssl/SSLSocketFactory;",
             )
 
             # The target method was not found, there is no reason to continue checking
@@ -66,8 +66,8 @@ class ExternalStorage(categories.ICodeVulnerability):
                     f"{caller_method.get_class_name()}->"
                     f"{caller_method.get_name()}{caller_method.get_descriptor()}"
                 ] = (
-                    "Landroid/os/Environment;->"
-                    "getExternalStorageDirectory()Ljava/io/File;"
+                    "Landroid/net/SSLCertificateSocketFactory;->getInsecure"
+                    "(I Landroid/net/SSLSessionCache;)Ljavax/net/ssl/SSLSocketFactory;"
                 )
 
             for key, value in vulnerable_methods.items():
