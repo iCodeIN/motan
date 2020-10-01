@@ -13,7 +13,7 @@ from motan.analysis import AndroidAnalysis
 from motan.util import RegisterAnalyzer
 
 
-class JavaScriptEnabled(categories.ICodeVulnerability):
+class KeystoreWithoutPassword(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -34,9 +34,9 @@ class JavaScriptEnabled(categories.ICodeVulnerability):
 
             dx = analysis_info.get_dex_analysis()
 
-            # The target method is the WebView API that enables JavaScript.
+            # The target method is the one loading the keystore.
             target_method: MethodClassAnalysis = dx.get_method_analysis_by_name(
-                "Landroid/webkit/WebSettings;", "setJavaScriptEnabled", "(Z)V"
+                "Ljava/security/KeyStore;", "load", "(Ljava/io/InputStream; [C)V"
             )
 
             # The target method was not found, there is no reason to continue checking
@@ -78,7 +78,7 @@ class JavaScriptEnabled(categories.ICodeVulnerability):
                 )
 
                 interesting_register = (
-                    f"v{caller_method.get_instruction(target_method_pos).D}"
+                    f"v{caller_method.get_instruction(target_method_pos).E}"
                 )
                 self.logger.debug(
                     f"Register with interesting param: {interesting_register}"
@@ -109,12 +109,13 @@ class JavaScriptEnabled(categories.ICodeVulnerability):
                     f"{interesting_register} value is {result.get_result()[-2]}"
                 )
 
-                # 1 means that the flag is enabled.
-                if result.get_result()[-2] == 1:
+                # 0 means that the keystore is loaded by passing a null value to the
+                # password field.
+                if result.get_result()[-2] == 0:
                     vulnerable_methods[
                         f"{caller_method.get_class_name()}->"
                         f"{caller_method.get_name()}{caller_method.get_descriptor()}"
-                    ] = "Landroid/webkit/WebSettings;->setJavaScriptEnabled(Z)V"
+                    ] = "Ljava/security/KeyStore;->load(Ljava/io/InputStream; [C)V"
 
             for key, value in vulnerable_methods.items():
                 vulnerability_found = True
