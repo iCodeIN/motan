@@ -10,6 +10,7 @@
             <path value="file://$PROJECT_DIR$/src/motan/resources" />
             <path value="file://$PROJECT_DIR$/src/test/test_resources" />
             <path value="file://$PROJECT_DIR$/src/test/test_resources/android-app-vulnerability-benchmarks" />
+            <path value="file://$PROJECT_DIR$/src/test/test_resources/InsecureBankv2" />
           </resourceRoots>
         </entryData>
       </entry>

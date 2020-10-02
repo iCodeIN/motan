@@ -70,6 +70,15 @@ class InvalidServerCertificate(categories.ICodeVulnerability):
                 for caller in dx.get_class_analysis(clazz).get_xref_from():
                     for m in caller.get_methods():
                         m = m.get_method()
+
+                        # Ignore excluded methods (if any).
+                        if analysis_info.ignore_libs:
+                            if any(
+                                m.get_class_name().startswith(prefix)
+                                for prefix in analysis_info.ignored_classes_prefixes
+                            ):
+                                continue
+
                         if isinstance(m, EncodedMethod):
                             for i in m.get_instructions():
                                 if i.get_op_value() == 0x22:  # 0x22 = "new-instance"

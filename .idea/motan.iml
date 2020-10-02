@@ -8,7 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/debuggable_application" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/javascript_enabled" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_javascript_enabled" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_connections" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/external_storage" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_socket" isTestSource="false" />
@@ -18,6 +18,10 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/backup_enabled" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/keystore_without_password" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/system_permission_usage" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/exported_component" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/exported_content_provider" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_allow_file_access" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/access_device_id" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (motan)" jdkType="Python SDK" />
