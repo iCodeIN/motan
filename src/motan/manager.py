@@ -26,6 +26,7 @@ class AndroidVulnerabilityManager(object):
             plugin_info_ext="vulnerability",
             categories_filter={
                 "Manifest": categories.IManifestVulnerability,
+                "HybridApp": categories.IHybridAppVulnerability,
                 "Code": categories.ICodeVulnerability,
             },
         )

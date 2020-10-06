@@ -22,6 +22,15 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/exported_content_provider" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_allow_file_access" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/access_device_id" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/send_sms" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_access_origin_no_csp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_access_origin_with_csp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_no_csp_access_issues" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_no_csp_access_ok" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_allow_navigation_wildcard" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_allow_navigation_all_https" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_allow_intent_all_https" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_allow_intent_wildcard" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (motan)" jdkType="Python SDK" />

@@ -34,8 +34,6 @@ class WebViewAllowFileAccess(categories.ICodeVulnerability):
 
             dx = analysis_info.get_dex_analysis()
 
-            # TODO: only for minSdk < 30 (after is false by default)
-
             # The target method is the WebView API that enables file access
             # https://developer.android.com/reference/android/webkit/WebSettings#setAllowFileAccess(boolean)
             target_method: MethodClassAnalysis = dx.get_method_analysis_by_name(
