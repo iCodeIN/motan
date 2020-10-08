@@ -55,8 +55,8 @@ class CordovaNoCspAccessOk(categories.IHybridAppVulnerability):
                 is_access_configured = True
                 # Check if an http link or a wildcard is used.
                 if "origin" in item.attrib and (
-                        item.attrib["origin"].strip().startswith("http:")
-                        or item.attrib["origin"].strip() == "*"
+                    item.attrib["origin"].strip().startswith("http:")
+                    or item.attrib["origin"].strip() == "*"
                 ):
                     access_issues.append(etree.tostring(item))
 
@@ -93,8 +93,8 @@ class CordovaNoCspAccessOk(categories.IHybridAppVulnerability):
                     meta_tag
                     for meta_tag in meta_tags
                     if "http-equiv" in meta_tag.attrib
-                       and meta_tag.attrib["http-equiv"].lower()
-                       == "content-security-policy"
+                    and meta_tag.attrib["http-equiv"].lower()
+                    == "content-security-policy"
                 ]
 
             if is_access_configured:
