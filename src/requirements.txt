@@ -1,5 +1,4 @@
 androguard==3.3.5
 marshmallow-dataclass==8.0.0
 pytest-cov==2.10.1
-tqdm==4.49.0
 Yapsy==1.12.2

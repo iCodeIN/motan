@@ -12,7 +12,7 @@ from motan import vulnerability as vuln
 from motan.analysis import AndroidAnalysis
 
 
-class InsecureConnections(categories.ICodeVulnerability):
+class InsecureConnection(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -89,7 +89,7 @@ class InsecureConnections(categories.ICodeVulnerability):
                 # vulnerability.
                 vulnerable_methods = {}
 
-                url = re.search(r"http://(\S+)", string)
+                url = re.search(r"http://\S+", string)
                 url = url.group(0) if url else None
                 if (
                     url

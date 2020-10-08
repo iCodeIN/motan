@@ -27,12 +27,7 @@ logging.getLogger("yapsy").level = logging.ERROR
 logging.getLogger("androguard").level = logging.ERROR
 
 
-def perform_analysis(
-    input_app_path: str,
-    language: str,
-    ignore_libs: bool = False,
-    interactive: bool = False,
-):
+def perform_analysis(input_app_path: str, language: str, ignore_libs: bool = False):
     # Make sure the file to analyze is a valid file.
     if not os.path.isfile(input_app_path):
         logger.critical(f"Unable to find mobile application file '{input_app_path}'")
@@ -66,11 +61,11 @@ def perform_analysis(
 
     if platform == "Android":
         manager = AndroidVulnerabilityManager()
-        analysis = AndroidAnalysis(input_app_path, language, ignore_libs, interactive)
+        analysis = AndroidAnalysis(input_app_path, language, ignore_libs)
 
     elif platform == "iOS":
         manager = IOSVulnerabilityManager()
-        analysis = IOSAnalysis(input_app_path, language, interactive)
+        analysis = IOSAnalysis(input_app_path, language)
 
     else:
         logger.critical(f"Unknown platform '{platform}'")
@@ -78,29 +73,20 @@ def perform_analysis(
 
     found_vulnerabilities: List[VulnerabilityDetails] = []
 
-    vulnerability_progress = util.show_list_progress(
-        manager.get_all_vulnerability_checks(),
-        interactive=interactive,
-        unit="vulnerability",
-        description="Checking vulnerabilities",
-    )
-
-    for item in vulnerability_progress:
-        try:
-            if interactive:
-                vulnerability_progress.set_description(
-                    f"Checking vulnerabilities ({item.name})"
-                )
+    try:
+        for item in manager.get_all_vulnerability_checks():
             vulnerability_details = item.plugin_object.check_vulnerability(analysis)
             if vulnerability_details:
                 found_vulnerabilities.append(vulnerability_details)
-        except Exception as e:
-            logger.critical(f"Error during vulnerability analysis: {e}", exc_info=True)
-            raise
-
-    # Calculate the total time (in seconds) needed for the analysis.
-    analysis_duration = datetime.now() - analysis_start
-    logger.info(f"Analysis duration: {analysis_duration.total_seconds():.0f} seconds")
+    except Exception as e:
+        logger.critical(f"Error during vulnerability analysis: {e}", exc_info=True)
+        raise
+    finally:
+        # Calculate the total time (in seconds) needed for the analysis.
+        analysis_duration = datetime.now() - analysis_start
+        logger.info(
+            f"Analysis duration: {analysis_duration.total_seconds():.0f} seconds"
+        )
 
     vulnerabilities_json = VulnerabilityDetails.Schema().dumps(
         found_vulnerabilities, many=True

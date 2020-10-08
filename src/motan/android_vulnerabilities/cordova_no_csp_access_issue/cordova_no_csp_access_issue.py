@@ -13,7 +13,7 @@ from motan import vulnerability as vuln
 from motan.analysis import AndroidAnalysis
 
 
-class CordovaNoCspAccessIssues(categories.IHybridAppVulnerability):
+class CordovaNoCspAccessIssue(categories.IHybridAppVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()

@@ -41,13 +41,6 @@ def get_cmd_args(args: List[str] = None):
         action="store_true",
         help="Ignore known third party libraries during the vulnerability analysis",
     )
-    parser.add_argument(
-        "-p",
-        "--show-progress",
-        action="store_true",
-        dest="interactive",
-        help="Show analysis progress",
-    )
     return parser.parse_args(args)
 
 
@@ -60,12 +53,7 @@ def main():
     if arguments.language:
         arguments.language = arguments.language.strip(" '\"")
 
-    perform_analysis(
-        arguments.app_file,
-        arguments.language,
-        arguments.ignore_libs,
-        arguments.interactive,
-    )
+    perform_analysis(arguments.app_file, arguments.language, arguments.ignore_libs)
 
 
 if __name__ == "__main__":

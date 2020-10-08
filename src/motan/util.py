@@ -10,31 +10,8 @@ from typing import Iterable, List
 from androguard.core.bytecodes import dvm
 from androguard.core.bytecodes.apk import APK
 from androguard.core.bytecodes.dvm import Instruction, ClassDefItem
-from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
-
-
-# When iterating over list L, use
-# "for element in show_list_progress(L, interactive=True)"
-# to show a progress bar. When setting "interactive=False", no progress bar will be
-# shown. While using this method, no other code should write to standard output.
-def show_list_progress(
-    the_list: Iterable,
-    interactive: bool = False,
-    unit: str = "unit",
-    description: str = None,
-):
-    if not interactive:
-        return the_list
-    else:
-        return tqdm(
-            the_list,
-            dynamic_ncols=True,
-            unit=unit,
-            desc=description,
-            bar_format="{l_bar}{bar}|[{elapsed}<{remaining}, {rate_fmt}]",
-        )
 
 
 def get_non_empty_lines_from_file(file_name: str) -> List[str]:

@@ -13,7 +13,7 @@ from motan.analysis import AndroidAnalysis
 from motan.util import RegisterAnalyzer
 
 
-class AllowAllHostnames(categories.ICodeVulnerability):
+class AllowAllHostname(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()

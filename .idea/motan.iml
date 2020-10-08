@@ -9,11 +9,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/debuggable_application" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_javascript_enabled" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_connections" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_connection" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/external_storage" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_socket" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_hostname_verifier" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/allow_all_hostnames" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/allow_all_hostname" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/invalid_server_certificate" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/backup_enabled" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/keystore_without_password" isTestSource="false" />
@@ -25,12 +25,20 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/send_sms" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_access_origin_no_csp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_access_origin_with_csp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_no_csp_access_issues" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_no_csp_access_issue" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_no_csp_access_ok" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_allow_navigation_wildcard" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_allow_navigation_all_https" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_allow_intent_all_https" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/cordova_allow_intent_wildcard" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/obfuscation_missing" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/obfuscation_low" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/access_mock_location" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/base64_string" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/base64_url" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/runtime_command" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/runtime_command_root" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/default_scheme_http" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (motan)" jdkType="Python SDK" />

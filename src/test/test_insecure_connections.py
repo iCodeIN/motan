@@ -3,10 +3,10 @@
 import os
 
 from motan.analysis import AndroidAnalysis
-from motan.android_vulnerabilities.insecure_connections import InsecureConnections
+from motan.android_vulnerabilities.insecure_connection import InsecureConnection
 
 
-class TestInsecureConnections(object):
+class TestInsecureConnection(object):
     def test_existing_vulnerability(self):
         apk_path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
@@ -15,7 +15,7 @@ class TestInsecureConnections(object):
         )
 
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
-        vulnerability = InsecureConnections().check_vulnerability(analysis)
+        vulnerability = InsecureConnection().check_vulnerability(analysis)
 
-        assert vulnerability.id == "InsecureConnections"
+        assert vulnerability.id == "InsecureConnection"
         assert len(vulnerability.code) == 2

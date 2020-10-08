@@ -29,14 +29,12 @@ class AndroidAnalysis(BaseAnalysis):
         apk_path: str,
         language: str = "en",
         ignore_libs: bool = False,
-        interactive: bool = False,
     ):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
         self.apk_path: str = apk_path
         self.language: str = language
         self.ignore_libs: bool = ignore_libs
-        self.interactive: bool = interactive
 
         # The list of class prefixes to ignore during the vulnerability analysis
         # (to be used when ignore_libs parameter is True).
@@ -81,11 +79,10 @@ class AndroidAnalysis(BaseAnalysis):
 
 
 class IOSAnalysis(BaseAnalysis):
-    def __init__(self, ipa_path: str, language: str = "en", interactive: bool = False):
+    def __init__(self, ipa_path: str, language: str = "en"):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
         self.ipa_path: str = ipa_path
         self.language: str = language
-        self.interactive: bool = interactive
 
         self.logger.info(f"Analyzing iOS application '{ipa_path}'")
