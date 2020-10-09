@@ -39,6 +39,9 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/runtime_command" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/runtime_command_root" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/default_scheme_http" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/empty_permission_group" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/access_internet_without_permission" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/world_readable_writable" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (motan)" jdkType="Python SDK" />

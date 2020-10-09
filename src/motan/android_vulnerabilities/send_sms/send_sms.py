@@ -32,7 +32,7 @@ class SendSms(categories.ICodeVulnerability):
 
             dx = analysis_info.get_dex_analysis()
 
-            # The target methods are the one that send SMS.
+            # The target methods are the ones sending SMS.
             target_methods = [
                 dx.get_method_analysis_by_name(
                     "Landroid/telephony/SmsManager;",
@@ -62,7 +62,8 @@ class SendSms(categories.ICodeVulnerability):
                     "Landroid/telephony/SmsManager;",
                     "sendMultipartTextMessage",
                     "(Ljava/lang/String; Ljava/lang/String; Ljava/util/List; "
-                    "Ljava/util/List; Ljava/util/List; Ljava/lang/String; Ljava/lang/String;)V",
+                    "Ljava/util/List; Ljava/util/List; Ljava/lang/String; "
+                    "Ljava/lang/String;)V",
                 ),
                 dx.get_method_analysis_by_name(
                     "Landroid/telephony/SmsManager;",

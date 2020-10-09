@@ -67,7 +67,7 @@ class InsecureHostnameVerifier(categories.ICodeVulnerability):
             if not interface_implementations:
                 return None
 
-            # The target methods are the one that set the HostnameVerifier.
+            # The target methods are the ones that set the HostnameVerifier.
             target_methods = [
                 dx.get_method_analysis_by_name(
                     "Ljavax/net/ssl/HttpsURLConnection;",

@@ -20,7 +20,7 @@ class Base64Url(categories.ICodeVulnerability):
 
     @staticmethod
     def is_base64(string: str) -> bool:
-        return bool(re.match("[A-Za-z0-9+/]+[=]{0,2}$", string))
+        return bool(re.match("[A-Za-z0-9+/]+={0,2}$", string))
 
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
