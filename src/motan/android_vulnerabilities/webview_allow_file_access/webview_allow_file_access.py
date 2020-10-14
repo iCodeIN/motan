@@ -21,7 +21,7 @@ class WebViewAllowFileAccess(categories.ICodeVulnerability):
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
-        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
+        self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             vulnerability_found = False
@@ -50,9 +50,14 @@ class WebViewAllowFileAccess(categories.ICodeVulnerability):
                 # access within WebView is enabled by default, so we have to check
                 # if WebView is used.
                 if int(analysis_info.get_apk_analysis().get_target_sdk_version()) < 30:
-                    for caller in dx.get_class_analysis(
+                    class_analysis = dx.get_class_analysis(
                         "Landroid/webkit/WebSettings;"
-                    ).get_xref_from():
+                    )
+                    # The target class was not found, there is no reason to continue
+                    # checking this vulnerability.
+                    if not class_analysis:
+                        return None
+                    for caller in class_analysis.get_xref_from():
                         for m in caller.get_methods():
                             m = m.get_method()
 
@@ -99,23 +104,22 @@ class WebViewAllowFileAccess(categories.ICodeVulnerability):
                         .off_to_pos(offset_in_caller_code)
                     )
 
+                    target_instr = caller_method.get_instruction(target_method_pos)
+
                     self.logger.debug("")
                     self.logger.debug(
                         f"This is the target method invocation "
                         f"(found in class '{caller_method.get_class_name()}'): "
-                        f"{caller_method.get_instruction(target_method_pos).get_name()} "
-                        f"{caller_method.get_instruction(target_method_pos).get_output()}"
+                        f"{target_instr.get_name()} {target_instr.get_output()}"
                     )
 
-                    interesting_register = (
-                        f"v{caller_method.get_instruction(target_method_pos).D}"
-                    )
+                    interesting_register = f"v{target_instr.get_operands()[-2][1]}"
                     self.logger.debug(
                         f"Register with interesting param: {interesting_register}"
                     )
                     self.logger.debug(
-                        "Going backwards in the list of instructions to check if "
-                        "the register's value is constant..."
+                        "Going backwards in the list of instructions to check the "
+                        "register's value..."
                     )
 
                     off = 0
@@ -155,6 +159,7 @@ class WebViewAllowFileAccess(categories.ICodeVulnerability):
                 return details
             else:
                 return None
+
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"

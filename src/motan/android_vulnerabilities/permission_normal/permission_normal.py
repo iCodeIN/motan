@@ -18,7 +18,7 @@ class PermissionNormal(categories.IManifestVulnerability):
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
-        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
+        self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             vulnerability_found = False
@@ -51,6 +51,7 @@ class PermissionNormal(categories.IManifestVulnerability):
                 return details
             else:
                 return None
+
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"

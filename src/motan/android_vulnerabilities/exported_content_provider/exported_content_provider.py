@@ -18,7 +18,7 @@ class ExportedContentProvider(categories.IManifestVulnerability):
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
-        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
+        self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             vulnerability_found = False
@@ -48,13 +48,26 @@ class ExportedContentProvider(categories.IManifestVulnerability):
                     else:
                         # Exported, with some permission set.
                         for p in [permission, read_permission, write_permission]:
-                            level = None
-                            detail = apk.get_details_permissions().get(p)
+                            detail = apk.get_declared_permissions_details().get(p)
                             if detail:
-                                level = detail[0].lower()
-                            if level == "normal" or level == "dangerous":
-                                accessible = True
-                                break
+                                level = detail["protectionLevel"]
+                                if (
+                                    level
+                                    and (int(level, 16) == 0x0 or int(level, 16) == 0x1)
+                                ) or not level:
+                                    # 0x0 is normal protectionLevel,
+                                    # 0x1 is dangerous protectionLevel
+                                    # (protectionLevel is set to normal by
+                                    # default).
+                                    accessible = True
+                                    break
+                            else:
+                                detail = apk.get_details_permissions().get(p)
+                                if detail:
+                                    level = detail[0].lower()
+                                    if level == "normal" or level == "dangerous":
+                                        accessible = True
+                                        break
 
                     if accessible:
                         vulnerability_found = True
@@ -69,6 +82,7 @@ class ExportedContentProvider(categories.IManifestVulnerability):
                 return details
             else:
                 return None
+
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"

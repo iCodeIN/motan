@@ -20,7 +20,7 @@ class InvalidServerCertificate(categories.ICodeVulnerability):
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
-        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
+        self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             vulnerability_found = False
@@ -67,7 +67,10 @@ class InvalidServerCertificate(categories.ICodeVulnerability):
 
             # Find the method(s) where the custom X509TrustManager is used.
             for clazz in interface_implementations:
-                for caller in dx.get_class_analysis(clazz).get_xref_from():
+                class_analysis = dx.get_class_analysis(clazz)
+                if not class_analysis:
+                    continue
+                for caller in class_analysis.get_xref_from():
                     for m in caller.get_methods():
                         m = m.get_method()
 
@@ -98,6 +101,7 @@ class InvalidServerCertificate(categories.ICodeVulnerability):
                 return details
             else:
                 return None
+
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"

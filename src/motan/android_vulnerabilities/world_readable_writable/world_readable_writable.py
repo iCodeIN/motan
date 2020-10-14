@@ -20,7 +20,7 @@ class WorldReadableWritable(categories.ICodeVulnerability):
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
-        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
+        self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             vulnerability_found = False
@@ -100,28 +100,27 @@ class WorldReadableWritable(categories.ICodeVulnerability):
                         .off_to_pos(offset_in_caller_code)
                     )
 
-                    self.logger.critical("")
-                    self.logger.critical(
+                    target_instr = caller_method.get_instruction(target_method_pos)
+
+                    self.logger.debug("")
+                    self.logger.debug(
                         f"This is the target method invocation "
                         f"(found in class '{caller_method.get_class_name()}'): "
-                        f"{caller_method.get_instruction(target_method_pos).get_name()} "
-                        f"{caller_method.get_instruction(target_method_pos).get_output()}"
+                        f"{target_instr.get_name()} {target_instr.get_output()}"
                     )
 
-                    interesting_register = (
-                        f"v{caller_method.get_instruction(target_method_pos).E}"
-                    )
-                    self.logger.critical(
+                    interesting_register = f"v{target_instr.get_operands()[-2][1]}"
+                    self.logger.debug(
                         f"Register with interesting param: {interesting_register}"
                     )
-                    self.logger.critical(
-                        "Going backwards in the list of instructions to check if "
-                        "the register's value is constant..."
+                    self.logger.debug(
+                        "Going backwards in the list of instructions to check the "
+                        "register's value..."
                     )
 
                     off = 0
                     for n, i in enumerate(caller_method.get_instructions()):
-                        self.logger.critical(
+                        self.logger.debug(
                             f"{n:8d} (0x{off:08x}) {i.get_name():30} {i.get_output()}"
                         )
 
@@ -136,15 +135,15 @@ class WorldReadableWritable(categories.ICodeVulnerability):
                         register_analyzer.get_last_instruction_register_to_value_mapping()
                     )
 
-                    self.logger.critical(
-                        f"{interesting_register} value is {result.get_result()[2]}"
+                    self.logger.debug(
+                        f"{interesting_register} value is {result.get_result()[-2]}"
                     )
 
                     try:
                         # MODE_WORLD_READABLE = 1
                         # MODE_WORLD_WRITEABLE = 2
                         # MODE_WORLD_READABLE + MODE_WORLD_WRITEABLE = 3
-                        if 1 <= result.get_result()[2] <= 3:
+                        if 1 <= result.get_result()[-2] <= 3:
                             vulnerable_methods[
                                 f"{caller_method.get_class_name()}->"
                                 f"{caller_method.get_name()}"
@@ -165,6 +164,7 @@ class WorldReadableWritable(categories.ICodeVulnerability):
                 return details
             else:
                 return None
+
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"

@@ -21,7 +21,7 @@ logging.basicConfig(
     level=log_level,
 )
 
-# For the plugin system, log only the error messages and ignore the log level set by
+# For the used libraries, log only the error messages and ignore the log level set by
 # the user.
 logging.getLogger("yapsy").level = logging.ERROR
 logging.getLogger("androguard").level = logging.ERROR
@@ -78,14 +78,30 @@ def perform_analysis(input_app_path: str, language: str, ignore_libs: bool = Fal
             vulnerability_details = item.plugin_object.check_vulnerability(analysis)
             if vulnerability_details:
                 found_vulnerabilities.append(vulnerability_details)
+
     except Exception as e:
         logger.critical(f"Error during vulnerability analysis: {e}", exc_info=True)
         raise
+
     finally:
         # Calculate the total time (in seconds) needed for the analysis.
         analysis_duration = datetime.now() - analysis_start
+
         logger.info(
-            f"Analysis duration: {analysis_duration.total_seconds():.0f} seconds"
+            f"{len(analysis.checked_vulnerabilities)} vulnerabilities checked: "
+            f"{', '.join(analysis.checked_vulnerabilities)}"
+        )
+
+        if found_vulnerabilities:
+            logger.info(
+                f"{len(found_vulnerabilities)} vulnerabilities found: "
+                f"{', '.join(map(lambda x: x.id, found_vulnerabilities))}"
+            )
+        else:
+            logger.info("0 vulnerabilities found")
+
+        logger.info(
+            f"Analysis duration: {analysis_duration.total_seconds():.1f} seconds"
         )
 
     vulnerabilities_json = VulnerabilityDetails.Schema().dumps(
@@ -93,6 +109,8 @@ def perform_analysis(input_app_path: str, language: str, ignore_libs: bool = Fal
     )
 
     # TODO: save results into a file?
-    logger.info(
-        f"Analysis results:\n{json.dumps(json.loads(vulnerabilities_json), indent=4)}"
-    )
+    if found_vulnerabilities:
+        logger.info(
+            "Analysis results:\n"
+            f"{json.dumps(json.loads(vulnerabilities_json), indent=4)}"
+        )

@@ -21,7 +21,7 @@ class AllowAllHostname(categories.ICodeVulnerability):
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
-        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
+        self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             vulnerability_found = False
@@ -71,17 +71,16 @@ class AllowAllHostname(categories.ICodeVulnerability):
                     caller_method.get_code().get_bc().off_to_pos(offset_in_caller_code)
                 )
 
+                target_instr = caller_method.get_instruction(target_method_pos)
+
                 self.logger.debug("")
                 self.logger.debug(
                     f"This is the target method invocation "
                     f"(found in class '{caller_method.get_class_name()}'): "
-                    f"{caller_method.get_instruction(target_method_pos).get_name()} "
-                    f"{caller_method.get_instruction(target_method_pos).get_output()}"
+                    f"{target_instr.get_name()} {target_instr.get_output()}"
                 )
 
-                interesting_register = (
-                    f"v{caller_method.get_instruction(target_method_pos).D}"
-                )
+                interesting_register = f"v{target_instr.get_operands()[-2][1]}"
                 self.logger.debug(
                     f"Register with interesting param: {interesting_register}"
                 )
@@ -147,6 +146,7 @@ class AllowAllHostname(categories.ICodeVulnerability):
                 return details
             else:
                 return None
+
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"

@@ -18,7 +18,7 @@ class ExportedComponent(categories.IManifestVulnerability):
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
-        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
+        self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             vulnerability_found = False
@@ -80,12 +80,31 @@ class ExportedComponent(categories.IManifestVulnerability):
                                 accessible = True
                             else:
                                 # Exported, with permission set.
-                                level = None
-                                detail = apk.get_details_permissions().get(permission)
+                                detail = apk.get_declared_permissions_details().get(
+                                    permission
+                                )
                                 if detail:
-                                    level = detail[0].lower()
-                                if level == "normal" or level == "dangerous":
-                                    accessible = True
+                                    level = detail["protectionLevel"]
+                                    if (
+                                        level
+                                        and (
+                                            int(level, 16) == 0x0
+                                            or int(level, 16) == 0x1
+                                        )
+                                    ) or not level:
+                                        # 0x0 is normal protectionLevel,
+                                        # 0x1 is dangerous protectionLevel
+                                        # (protectionLevel is set to normal by
+                                        # default).
+                                        accessible = True
+                                else:
+                                    detail = apk.get_details_permissions().get(
+                                        permission
+                                    )
+                                    if detail:
+                                        level = detail[0].lower()
+                                        if level == "normal" or level == "dangerous":
+                                            accessible = True
 
                             if accessible:
                                 vulnerability_found = True
@@ -100,6 +119,7 @@ class ExportedComponent(categories.IManifestVulnerability):
                 return details
             else:
                 return None
+
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"

@@ -5,7 +5,7 @@
   "references": {
     "text": "Ulteriori informazioni possono essere reperite nella guida ufficiale per sviluppatori Android [[1]] mentre esempi di ContentProvider vulnerabili possono essere trovati nei seguenti articoli di blog [[2], [3]].",
     "links": {
-      "1": "http://developer.android.com/guide/topics/manifest/provider-element.html#exported",
+      "1": "https://developer.android.com/guide/topics/manifest/provider-element.html#exported",
       "2": "https://www.nowsecure.com/mobile-security/ebay-android-content-provider-injection-vulnerability.html",
       "3": "http://blog.trustlook.com/2013/10/23/ebay-android-content-provider-information-disclosure-vulnerability/"
     }

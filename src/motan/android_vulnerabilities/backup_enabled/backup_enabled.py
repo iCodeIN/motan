@@ -17,7 +17,7 @@ class BackupEnabled(categories.IManifestVulnerability):
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
-        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
+        self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             vulnerability_found = False
@@ -31,7 +31,14 @@ class BackupEnabled(categories.IManifestVulnerability):
             allow_backup = analysis_info.get_apk_analysis().get_attribute_value(
                 "application", "allowBackup"
             )
-            if allow_backup and allow_backup.lower() == "true":
+            if allow_backup is None:
+                vulnerability_found = True
+                details.code.append(
+                    vuln.VulnerableCode(
+                        "allowBackup not set (true by default)", "AndroidManifest.xml"
+                    )
+                )
+            elif allow_backup and allow_backup.lower() == "true":
                 vulnerability_found = True
                 details.code.append(
                     vuln.VulnerableCode(
@@ -43,6 +50,7 @@ class BackupEnabled(categories.IManifestVulnerability):
                 return details
             else:
                 return None
+
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"

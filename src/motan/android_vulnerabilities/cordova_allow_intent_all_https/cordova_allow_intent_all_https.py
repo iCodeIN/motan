@@ -21,7 +21,7 @@ class CordovaAllowIntentAllHttps(categories.IHybridAppVulnerability):
     def check_vulnerability(
         self, analysis_info: AndroidAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
-        self.logger.info(f"Checking '{self.__class__.__name__}' vulnerability")
+        self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
             vulnerability_found = False
@@ -55,12 +55,15 @@ class CordovaAllowIntentAllHttps(categories.IHybridAppVulnerability):
                     or item.attrib["href"].strip() == "https://*/*"
                 ):
                     vulnerability_found = True
-                    details.code.append(vuln.VulnerableCode(item, "res/xml/config.xml"))
+                    details.code.append(
+                        vuln.VulnerableCode(etree.tostring(item), "res/xml/config.xml")
+                    )
 
             if vulnerability_found:
                 return details
             else:
                 return None
+
         except Exception as e:
             self.logger.error(
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"
