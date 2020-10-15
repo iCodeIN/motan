@@ -32,6 +32,10 @@ class AndroidVulnerabilityManager(object):
         )
         self.manager.collectPlugins()
 
+    @property
+    def platform(self) -> str:
+        return "Android"
+
     def get_all_vulnerability_checks(self):
         # Order plugins alphabetically.
         return sorted(self.manager.getAllPlugins(), key=lambda x: x.name)
@@ -58,6 +62,10 @@ class IOSVulnerabilityManager(object):
             },
         )
         self.manager.collectPlugins()
+
+    @property
+    def platform(self) -> str:
+        return "iOS"
 
     def get_all_vulnerability_checks(self):
         # Order plugins alphabetically.
