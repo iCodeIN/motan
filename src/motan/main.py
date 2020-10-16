@@ -112,5 +112,5 @@ def perform_analysis(input_app_path: str, language: str, ignore_libs: bool = Fal
     if found_vulnerabilities:
         logger.info(
             "Analysis results:\n"
-            f"{json.dumps(json.loads(vulnerabilities_json), indent=4)}"
+            f"{json.dumps(json.loads(vulnerabilities_json), indent=2)}"
         )
