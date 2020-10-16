@@ -5,12 +5,12 @@
   ],
   "cvss": {
     "attack_vector": "Network",
-    "attack_complexity": "Low",
+    "attack_complexity": "High",
     "privileges_required": "Low",
     "user_interaction": "None",
     "scope": "Unchanged",
     "confidentiality_impact": "Low",
-    "integrity_impact": "Low",
+    "integrity_impact": "None",
     "availability_impact": "None"
   }
 }
