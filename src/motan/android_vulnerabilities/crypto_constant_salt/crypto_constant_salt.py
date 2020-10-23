@@ -58,9 +58,7 @@ class CryptoConstantSalt(categories.ICodeVulnerability):
         param_registers = caller.get_method().get_information().get("params")
 
         if last_invocation_params and param_registers:
-            self.logger.debug(
-                "Last invocation passed some parameters to this method:"
-            )
+            self.logger.debug("Last invocation passed some parameters to this method:")
             # Loop in reverse order to fill the parameters starting from the
             # last one.
             for param, val in reversed(

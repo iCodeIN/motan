@@ -72,8 +72,8 @@ class InsecureSocket(categories.ICodeVulnerability):
                     # Ignore excluded methods (if any).
                     if analysis_info.ignore_libs:
                         if any(
-                                caller_method.get_class_name().startswith(prefix)
-                                for prefix in analysis_info.ignored_classes_prefixes
+                            caller_method.get_class_name().startswith(prefix)
+                            for prefix in analysis_info.ignored_classes_prefixes
                         ):
                             continue
 
