@@ -3,7 +3,7 @@
 import os
 
 from motan.analysis import AndroidAnalysis
-from motan.android_vulnerabilities.insecure_socket import InsecureSocket
+from motan.android_vulnerabilities.insecure_socket_factory import InsecureSocketFactory
 
 
 class TestInsecureSocket(object):
@@ -12,11 +12,11 @@ class TestInsecureSocket(object):
             os.path.dirname(os.path.realpath(__file__)),
             "test_resources",
             "android-app-vulnerability-benchmarks",
-            "InsecureSSLSocket-MITM-Lean-benign.apk",
+            "InsecureSSLSocketFactory-MITM-Lean-benign.apk",
         )
 
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
-        vulnerability = InsecureSocket().check_vulnerability(analysis)
+        vulnerability = InsecureSocketFactory().check_vulnerability(analysis)
 
-        assert vulnerability.id == "InsecureSocket"
+        assert vulnerability.id == "InsecureSocketFactory"
         assert len(vulnerability.code) == 1

@@ -71,7 +71,7 @@ class ObfuscationMissing(categories.ICodeVulnerability):
                 filter(lambda x: is_ascii_problem(x.name), all_fields)
             )
             non_ascii_method_names = list(
-                filter(lambda x: is_ascii_problem(x.name + x.descriptor), all_methods)
+                filter(lambda x: is_ascii_problem(x.name), all_methods)
             )
 
             if len(all_classes) > 0:

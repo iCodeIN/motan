@@ -81,7 +81,7 @@ class WorldReadableWritable(categories.ICodeVulnerability):
                 if target_method
             ]:
                 for caller in caller_set:
-                    caller_method: EncodedMethod = caller[1]
+                    caller_method: EncodedMethod = caller[1].get_method()
                     offset_in_caller_code: int = caller[2]
 
                     # Ignore excluded methods (if any).
@@ -129,7 +129,10 @@ class WorldReadableWritable(categories.ICodeVulnerability):
                             break
 
                     register_analyzer = RegisterAnalyzer(
-                        caller_method.get_instructions(), offset_in_caller_code
+                        caller_method.get_instructions(),
+                        offset_in_caller_code,
+                        analysis_info.get_apk_analysis(),
+                        analysis_info.get_dex_analysis(),
                     )
                     result = RegisterAnalyzer.Result(
                         register_analyzer.get_last_instruction_register_to_value_mapping()

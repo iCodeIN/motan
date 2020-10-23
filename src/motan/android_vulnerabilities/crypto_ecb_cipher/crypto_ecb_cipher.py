@@ -13,7 +13,7 @@ from motan.analysis import AndroidAnalysis
 from motan.util import RegisterAnalyzer
 
 
-class DefaultSchemeHttp(categories.ICodeVulnerability):
+class CryptoEcbCipher(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -34,11 +34,11 @@ class DefaultSchemeHttp(categories.ICodeVulnerability):
 
             dx = analysis_info.get_dex_analysis()
 
-            # The target method is the HttpHost constructor.
+            # The target method is the encryption cipher.
             target_method: MethodAnalysis = dx.get_method_analysis_by_name(
-                "Lorg/apache/http/HttpHost;",
-                "<init>",
-                "(Ljava/lang/String; I Ljava/lang/String;)V",
+                "Ljavax/crypto/Cipher;",
+                "getInstance",
+                "(Ljava/lang/String;)Ljavax/crypto/Cipher;",
             )
 
             # The target method was not found, there is no reason to continue checking
@@ -113,15 +113,24 @@ class DefaultSchemeHttp(categories.ICodeVulnerability):
                     f"{interesting_register} value is {result.get_result()[-2]}"
                 )
 
-                if result.is_string(-2) and result.get_result()[-2] == "http":
-                    vulnerable_methods[
-                        f"{caller_method.get_class_name()}->"
-                        f"{caller_method.get_name()}{caller_method.get_descriptor()}"
-                    ] = (
-                        f"{target_method.get_method().get_class_name()}->"
-                        f"{target_method.get_method().get_name()}"
-                        f"{target_method.get_method().get_descriptor()}"
-                    )
+                if result.is_string(-2):
+                    # Algorithm, mode, padding.
+                    tokens = result.get_result()[-2].split("/")
+
+                    if (
+                        tokens[0] == "AES"
+                        or tokens[0] == "AES_128"
+                        or tokens[0] == "AES_256"
+                    ):
+                        # Default mode is ECB.
+                        if len(tokens) == 1 or (
+                            len(tokens) > 1 and (not tokens[1] or tokens[1] == "ECB")
+                        ):
+                            vulnerable_methods[
+                                f"{caller_method.get_class_name()}->"
+                                f"{caller_method.get_name()}"
+                                f"{caller_method.get_descriptor()}"
+                            ] = f'insecure cipher "{result.get_result()[-2]}"'
 
             for key, value in vulnerable_methods.items():
                 vulnerability_found = True

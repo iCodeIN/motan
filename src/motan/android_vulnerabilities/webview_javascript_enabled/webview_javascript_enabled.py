@@ -4,7 +4,7 @@ import logging
 import os
 from typing import Optional
 
-from androguard.core.analysis.analysis import MethodClassAnalysis
+from androguard.core.analysis.analysis import MethodAnalysis
 from androguard.core.bytecodes.dvm import EncodedMethod
 
 import motan.categories as categories
@@ -35,7 +35,7 @@ class WebViewJavaScriptEnabled(categories.ICodeVulnerability):
             dx = analysis_info.get_dex_analysis()
 
             # The target method is the WebView API that enables JavaScript.
-            target_method: MethodClassAnalysis = dx.get_method_analysis_by_name(
+            target_method: MethodAnalysis = dx.get_method_analysis_by_name(
                 "Landroid/webkit/WebSettings;", "setJavaScriptEnabled", "(Z)V"
             )
 
@@ -52,7 +52,7 @@ class WebViewJavaScriptEnabled(categories.ICodeVulnerability):
             # Check all the places where the target method is used, and put the caller
             # method in the list with the vulnerabilities if all the conditions are met.
             for caller in target_method.get_xref_from():
-                caller_method: EncodedMethod = caller[1]
+                caller_method: EncodedMethod = caller[1].get_method()
                 offset_in_caller_code: int = caller[2]
 
                 # Ignore excluded methods (if any).
@@ -98,7 +98,10 @@ class WebViewJavaScriptEnabled(categories.ICodeVulnerability):
                         break
 
                 register_analyzer = RegisterAnalyzer(
-                    caller_method.get_instructions(), offset_in_caller_code
+                    caller_method.get_instructions(),
+                    offset_in_caller_code,
+                    analysis_info.get_apk_analysis(),
+                    analysis_info.get_dex_analysis(),
                 )
                 result = RegisterAnalyzer.Result(
                     register_analyzer.get_last_instruction_register_to_value_mapping()
@@ -113,7 +116,11 @@ class WebViewJavaScriptEnabled(categories.ICodeVulnerability):
                     vulnerable_methods[
                         f"{caller_method.get_class_name()}->"
                         f"{caller_method.get_name()}{caller_method.get_descriptor()}"
-                    ] = "Landroid/webkit/WebSettings;->setJavaScriptEnabled(Z)V"
+                    ] = (
+                        f"{target_method.get_method().get_class_name()}->"
+                        f"{target_method.get_method().get_name()}"
+                        f"{target_method.get_method().get_descriptor()}"
+                    )
 
             for key, value in vulnerable_methods.items():
                 vulnerability_found = True

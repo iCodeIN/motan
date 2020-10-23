@@ -4,7 +4,6 @@ import logging
 import os
 from typing import Optional
 
-from androguard.core.analysis.analysis import MethodClassAnalysis
 from androguard.core.bytecodes.dvm import EncodedMethod
 
 import motan.categories as categories
@@ -33,16 +32,28 @@ class InsecureSocket(categories.ICodeVulnerability):
 
             dx = analysis_info.get_dex_analysis()
 
-            # The target method is the insecure socket.
-            target_method: MethodClassAnalysis = dx.get_method_analysis_by_name(
-                "Landroid/net/SSLCertificateSocketFactory;",
-                "getInsecure",
-                "(I Landroid/net/SSLSessionCache;)Ljavax/net/ssl/SSLSocketFactory;",
-            )
+            target_methods = [
+                dx.get_method_analysis_by_name(
+                    "Landroid/net/SSLCertificateSocketFactory;",
+                    "createSocket",
+                    "()Ljava/net/Socket;",
+                ),
+                dx.get_method_analysis_by_name(
+                    "Landroid/net/SSLCertificateSocketFactory;",
+                    "createSocket",
+                    "(Ljava/net/InetAddress; I)Ljava/net/Socket;",
+                ),
+                dx.get_method_analysis_by_name(
+                    "Landroid/net/SSLCertificateSocketFactory;",
+                    "createSocket",
+                    "(Ljava/net/InetAddress; I Ljava/net/InetAddress; I)"
+                    "Ljava/net/Socket",
+                ),
+            ]
 
-            # The target method was not found, there is no reason to continue checking
+            # No target methods were found, there is no reason to continue checking
             # this vulnerability.
-            if not target_method:
+            if not target_methods or not any(target_methods):
                 return None
 
             # The list of methods that contain the vulnerability. The key is the full
@@ -50,25 +61,30 @@ class InsecureSocket(categories.ICodeVulnerability):
             # the signature of the vulnerable API/other info about the vulnerability.
             vulnerable_methods = {}
 
-            # Check all the places where the target method is used, and put the caller
-            # method in the list with the vulnerabilities.
-            for caller in target_method.get_xref_from():
-                caller_method: EncodedMethod = caller[1]
+            for caller_set, original in [
+                (target_method.get_xref_from(), target_method)
+                for target_method in target_methods
+                if target_method
+            ]:
+                for caller in caller_set:
+                    caller_method: EncodedMethod = caller[1].get_method()
 
-                # Ignore excluded methods (if any).
-                if analysis_info.ignore_libs and any(
-                    caller_method.get_class_name().startswith(prefix)
-                    for prefix in analysis_info.ignored_classes_prefixes
-                ):
-                    continue
+                    # Ignore excluded methods (if any).
+                    if analysis_info.ignore_libs:
+                        if any(
+                                caller_method.get_class_name().startswith(prefix)
+                                for prefix in analysis_info.ignored_classes_prefixes
+                        ):
+                            continue
 
-                vulnerable_methods[
-                    f"{caller_method.get_class_name()}->"
-                    f"{caller_method.get_name()}{caller_method.get_descriptor()}"
-                ] = (
-                    "Landroid/net/SSLCertificateSocketFactory;->getInsecure"
-                    "(I Landroid/net/SSLSessionCache;)Ljavax/net/ssl/SSLSocketFactory;"
-                )
+                    vulnerable_methods[
+                        f"{caller_method.get_class_name()}->"
+                        f"{caller_method.get_name()}{caller_method.get_descriptor()}"
+                    ] = (
+                        f"{original.get_method().get_class_name()}->"
+                        f"{original.get_method().get_name()}"
+                        f"{original.get_method().get_descriptor()}"
+                    )
 
             for key, value in vulnerable_methods.items():
                 vulnerability_found = True

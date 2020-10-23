@@ -45,6 +45,7 @@ class Base64String(categories.ICodeVulnerability):
                 # vulnerability.
                 vulnerable_methods = {}
 
+                string = str(string)
                 if self.is_base64(string) and len(string) >= 10:
                     try:
                         # Try to decode the base64 string. If something goes wrong or
@@ -59,7 +60,7 @@ class Base64String(categories.ICodeVulnerability):
                         continue
 
                     for caller in string_analysis.get_xref_from():
-                        caller_method: EncodedMethod = caller[1]
+                        caller_method: EncodedMethod = caller[1].get_method()
 
                         # Ignore excluded methods (if any).
                         if analysis_info.ignore_libs:
@@ -74,8 +75,8 @@ class Base64String(categories.ICodeVulnerability):
                             f"{caller_method.get_name()}"
                             f"{caller_method.get_descriptor()}"
                         ] = (
-                            f"Original string: '{string}' "
-                            f"Decoded string: '{decoded_string}'"
+                            f'Original string: "{string}" '
+                            f'Decoded string: "{decoded_string}"'
                         )
 
                 for key, value in vulnerable_methods.items():

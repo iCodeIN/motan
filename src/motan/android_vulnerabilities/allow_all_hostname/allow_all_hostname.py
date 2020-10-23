@@ -4,7 +4,7 @@ import logging
 import os
 from typing import Optional
 
-from androguard.core.analysis.analysis import MethodClassAnalysis
+from androguard.core.analysis.analysis import MethodAnalysis
 from androguard.core.bytecodes.dvm import EncodedMethod
 
 import motan.categories as categories
@@ -37,7 +37,7 @@ class AllowAllHostname(categories.ICodeVulnerability):
             # The target method is the one setting the HostnameVerifier (however this
             # method is deprecated since Android API 22):
             # https://developer.android.com/reference/org/apache/http/conn/ssl/SSLSocketFactory
-            target_method: MethodClassAnalysis = dx.get_method_analysis_by_name(
+            target_method: MethodAnalysis = dx.get_method_analysis_by_name(
                 "Lorg/apache/http/conn/ssl/SSLSocketFactory;",
                 "setHostnameVerifier",
                 "(Lorg/apache/http/conn/ssl/X509HostnameVerifier;)V",
@@ -54,7 +54,7 @@ class AllowAllHostname(categories.ICodeVulnerability):
             vulnerable_methods = {}
 
             for caller in target_method.get_xref_from():
-                caller_method: EncodedMethod = caller[1]
+                caller_method: EncodedMethod = caller[1].get_method()
                 offset_in_caller_code: int = caller[2]
 
                 # Ignore excluded methods (if any).
@@ -100,7 +100,10 @@ class AllowAllHostname(categories.ICodeVulnerability):
                         break
 
                 register_analyzer = RegisterAnalyzer(
-                    caller_method.get_instructions(), offset_in_caller_code
+                    caller_method.get_instructions(),
+                    offset_in_caller_code,
+                    analysis_info.get_apk_analysis(),
+                    analysis_info.get_dex_analysis(),
                 )
                 result = RegisterAnalyzer.Result(
                     register_analyzer.get_last_instruction_register_to_value_mapping()
@@ -133,9 +136,9 @@ class AllowAllHostname(categories.ICodeVulnerability):
                         f"{caller_method.get_class_name()}->"
                         f"{caller_method.get_name()}{caller_method.get_descriptor()}"
                     ] = (
-                        "Lorg/apache/http/conn/ssl/SSLSocketFactory;->"
-                        "setHostnameVerifier"
-                        "(Lorg/apache/http/conn/ssl/X509HostnameVerifier;)V"
+                        f"{target_method.get_method().get_class_name()}->"
+                        f"{target_method.get_method().get_name()}"
+                        f"{target_method.get_method().get_descriptor()}"
                     )
 
             for key, value in vulnerable_methods.items():

@@ -101,7 +101,7 @@ class SendSms(categories.ICodeVulnerability):
                 if target_method
             ]:
                 for caller in caller_set:
-                    caller_method: EncodedMethod = caller[1]
+                    caller_method: EncodedMethod = caller[1].get_method()
 
                     # Ignore excluded methods (if any).
                     if analysis_info.ignore_libs:

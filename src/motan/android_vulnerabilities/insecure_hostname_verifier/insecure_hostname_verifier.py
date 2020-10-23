@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import itertools
 import logging
 import os
 from typing import Optional
@@ -49,7 +48,9 @@ class InsecureHostnameVerifier(categories.ICodeVulnerability):
                             == "(Ljava/lang/String; Ljavax/net/ssl/SSLSession;)Z"
                         ):
                             register_analyzer = RegisterAnalyzer(
-                                method.get_instructions()
+                                method.get_instructions(),
+                                apk_analysis=analysis_info.get_apk_analysis(),
+                                dex_analysis=analysis_info.get_dex_analysis(),
                             )
                             result = (
                                 register_analyzer.get_last_instruction_return_value()
@@ -91,84 +92,92 @@ class InsecureHostnameVerifier(categories.ICodeVulnerability):
             # the signature of the vulnerable API/other info about the vulnerability.
             vulnerable_methods = {}
 
-            for caller in itertools.chain.from_iterable(
-                [
-                    target_method.get_xref_from()
-                    for target_method in target_methods
-                    if target_method
-                ]
-            ):
-                caller_method: EncodedMethod = caller[1]
-                offset_in_caller_code: int = caller[2]
+            for caller_set, original in [
+                (target_method.get_xref_from(), target_method)
+                for target_method in target_methods
+                if target_method
+            ]:
+                for caller in caller_set:
+                    caller_method: EncodedMethod = caller[1].get_method()
+                    offset_in_caller_code: int = caller[2]
 
-                # Ignore excluded methods (if any).
-                if analysis_info.ignore_libs:
-                    if any(
-                        caller_method.get_class_name().startswith(prefix)
-                        for prefix in analysis_info.ignored_classes_prefixes
-                    ):
-                        continue
+                    # Ignore excluded methods (if any).
+                    if analysis_info.ignore_libs:
+                        if any(
+                            caller_method.get_class_name().startswith(prefix)
+                            for prefix in analysis_info.ignored_classes_prefixes
+                        ):
+                            continue
 
-                # Get the position (of the target_method invocation) from the offset
-                # value.
-                target_method_pos = (
-                    caller_method.get_code().get_bc().off_to_pos(offset_in_caller_code)
-                )
+                    # Get the position (of the target_method invocation) from the offset
+                    # value.
+                    target_method_pos = (
+                        caller_method.get_code()
+                        .get_bc()
+                        .off_to_pos(offset_in_caller_code)
+                    )
 
-                target_instr = caller_method.get_instruction(target_method_pos)
+                    target_instr = caller_method.get_instruction(target_method_pos)
 
-                self.logger.debug("")
-                self.logger.debug(
-                    f"This is the target method invocation "
-                    f"(found in class '{caller_method.get_class_name()}'): "
-                    f"{target_instr.get_name()} {target_instr.get_output()}"
-                )
-
-                interesting_register = f"v{target_instr.get_operands()[-2][1]}"
-                self.logger.debug(
-                    f"Register with interesting param: {interesting_register}"
-                )
-                self.logger.debug(
-                    "Going backwards in the list of instructions to check the "
-                    "register's value..."
-                )
-
-                off = 0
-                for n, i in enumerate(caller_method.get_instructions()):
+                    self.logger.debug("")
                     self.logger.debug(
-                        f"{n:8d} (0x{off:08x}) {i.get_name():30} {i.get_output()}"
+                        f"This is the target method invocation "
+                        f"(found in class '{caller_method.get_class_name()}'): "
+                        f"{target_instr.get_name()} {target_instr.get_output()}"
                     )
 
-                    off += i.get_length()
-                    if off > offset_in_caller_code:
-                        break
-
-                register_analyzer = RegisterAnalyzer(
-                    caller_method.get_instructions(), offset_in_caller_code
-                )
-                result = RegisterAnalyzer.Result(
-                    register_analyzer.get_last_instruction_register_to_value_mapping()
-                )
-
-                try:
-                    hostname_verifier_class = result.get_result()[-2].get_class_name()
-                except Exception:
-                    hostname_verifier_class = None
-
-                self.logger.debug(
-                    f"{interesting_register} value is {hostname_verifier_class}"
-                )
-
-                # Check if hostname_verifier_class is in the list of classes that
-                # implement HostnameVerifier interface with a hardcoded return value.
-                if hostname_verifier_class in interface_implementations:
-                    vulnerable_methods[
-                        f"{caller_method.get_class_name()}->"
-                        f"{caller_method.get_name()}{caller_method.get_descriptor()}"
-                    ] = (
-                        f"{hostname_verifier_class}->"
-                        f"verify(Ljava/lang/String; Ljavax/net/ssl/SSLSession;)Z"
+                    interesting_register = f"v{target_instr.get_operands()[-2][1]}"
+                    self.logger.debug(
+                        f"Register with interesting param: {interesting_register}"
                     )
+                    self.logger.debug(
+                        "Going backwards in the list of instructions to check the "
+                        "register's value..."
+                    )
+
+                    off = 0
+                    for n, i in enumerate(caller_method.get_instructions()):
+                        self.logger.debug(
+                            f"{n:8d} (0x{off:08x}) {i.get_name():30} {i.get_output()}"
+                        )
+
+                        off += i.get_length()
+                        if off > offset_in_caller_code:
+                            break
+
+                    register_analyzer = RegisterAnalyzer(
+                        caller_method.get_instructions(),
+                        offset_in_caller_code,
+                        analysis_info.get_apk_analysis(),
+                        analysis_info.get_dex_analysis(),
+                    )
+                    result = RegisterAnalyzer.Result(
+                        register_analyzer.get_last_instruction_register_to_value_mapping()
+                    )
+
+                    try:
+                        hostname_verifier_class = result.get_result()[
+                            -2
+                        ].get_class_name()
+                    except Exception:
+                        hostname_verifier_class = None
+
+                    self.logger.debug(
+                        f"{interesting_register} value is {hostname_verifier_class}"
+                    )
+
+                    # Check if hostname_verifier_class is in the list of classes that
+                    # implement HostnameVerifier interface with a hardcoded return
+                    # value.
+                    if hostname_verifier_class in interface_implementations:
+                        vulnerable_methods[
+                            f"{caller_method.get_class_name()}->"
+                            f"{caller_method.get_name()}"
+                            f"{caller_method.get_descriptor()}"
+                        ] = (
+                            f"{hostname_verifier_class}->"
+                            f"verify(Ljava/lang/String; Ljavax/net/ssl/SSLSession;)Z"
+                        )
 
             for key, value in vulnerable_methods.items():
                 vulnerability_found = True

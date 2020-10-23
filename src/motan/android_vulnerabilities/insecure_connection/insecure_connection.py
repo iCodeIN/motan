@@ -89,7 +89,7 @@ class InsecureConnection(categories.ICodeVulnerability):
                 # vulnerability.
                 vulnerable_methods = {}
 
-                url = re.search(r"http://\S+", string)
+                url = re.search(r"http://\S+", str(string))
                 url = url.group(0) if url else None
                 if (
                     url
@@ -97,7 +97,7 @@ class InsecureConnection(categories.ICodeVulnerability):
                     and not url.lower().endswith(exclude_end_with)
                 ):
                     for caller in string_analysis.get_xref_from():
-                        caller_method: EncodedMethod = caller[1]
+                        caller_method: EncodedMethod = caller[1].get_method()
 
                         # Ignore excluded methods (if any).
                         if analysis_info.ignore_libs:
@@ -109,7 +109,8 @@ class InsecureConnection(categories.ICodeVulnerability):
 
                         vulnerable_methods[
                             f"{caller_method.get_class_name()}->"
-                            f"{caller_method.get_name()}{caller_method.get_descriptor()}"
+                            f"{caller_method.get_name()}"
+                            f"{caller_method.get_descriptor()}"
                         ] = url
 
                 for key, value in vulnerable_methods.items():

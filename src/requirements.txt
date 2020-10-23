@@ -1,4 +1,4 @@
-androguard==3.3.5
+git+https://github.com/androguard/androguard@99e48e7bfdd88c2912397b40ad7fc47ed7fae547
 marshmallow-dataclass==8.0.0
 pytest-cov==2.10.1
 Yapsy==1.12.2

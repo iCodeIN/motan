@@ -11,7 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_javascript_enabled" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_connection" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/external_storage" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_socket" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_socket_factory" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_hostname_verifier" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/allow_all_hostname" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/invalid_server_certificate" isTestSource="false" />
@@ -50,6 +50,10 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/implicit_intent_service" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/shared_user_id" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/excelify" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_socket" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/crypto_ecb_cipher" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/crypto_constant_salt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/crypto_constant_iv" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (motan)" jdkType="Python SDK" />
