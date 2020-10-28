@@ -2,14 +2,36 @@
 
 import logging
 import os
-from typing import Optional
+from typing import Optional, List
 
 from androguard.core.analysis.analysis import MethodAnalysis
-from androguard.core.bytecodes.dvm import EncodedMethod
 
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import AndroidAnalysis
+from motan.taint_analysis import TaintAnalysis
+
+
+class CustomTaintAnalysis(TaintAnalysis):
+    def vulnerable_path_found_callback(
+        self,
+        full_path: List[MethodAnalysis],
+        caller: MethodAnalysis = None,
+        target: MethodAnalysis = None,
+        last_invocation_params: list = None,
+    ):
+        if caller and target:
+            # The key is the full method signature where the vulnerable code was found,
+            # while the value is a tuple with the signature of the vulnerable target
+            # method and the full path leading to the vulnerability.
+            self.vulnerabilities[
+                f"{caller.class_name}->{caller.name}{caller.descriptor}"
+            ] = (
+                f"{target.class_name}->{target.name}{target.descriptor}",
+                " --> ".join(
+                    f"{p.class_name}->{p.name}{p.descriptor}" for p in full_path
+                ),
+            )
 
 
 class ExternalStorage(categories.ICodeVulnerability):
@@ -40,40 +62,13 @@ class ExternalStorage(categories.ICodeVulnerability):
                 "()Ljava/io/File;",
             )
 
-            # The target method was not found, there is no reason to continue checking
-            # this vulnerability.
-            if not target_method:
-                return None
+            taint_analysis = CustomTaintAnalysis(target_method, analysis_info)
 
-            # The list of methods that contain the vulnerability. The key is the full
-            # method signature where the vulnerable code was found, while the value is
-            # the signature of the vulnerable API/other info about the vulnerability.
-            vulnerable_methods = {}
+            code_vulnerabilities = taint_analysis.find_code_vulnerabilities()
 
-            # Check all the places where the target method is used, and put the caller
-            # method in the list with the vulnerabilities.
-            for caller in target_method.get_xref_from():
-                caller_method: EncodedMethod = caller[1].get_method()
-
-                # Ignore excluded methods (if any).
-                if analysis_info.ignore_libs and any(
-                    caller_method.get_class_name().startswith(prefix)
-                    for prefix in analysis_info.ignored_classes_prefixes
-                ):
-                    continue
-
-                vulnerable_methods[
-                    f"{caller_method.get_class_name()}->"
-                    f"{caller_method.get_name()}{caller_method.get_descriptor()}"
-                ] = (
-                    f"{target_method.get_method().get_class_name()}->"
-                    f"{target_method.get_method().get_name()}"
-                    f"{target_method.get_method().get_descriptor()}"
-                )
-
-            for key, value in vulnerable_methods.items():
+            if code_vulnerabilities:
                 vulnerability_found = True
-                details.code.append(vuln.VulnerableCode(value, key))
+                details.code.extend(code_vulnerabilities)
 
             if vulnerability_found:
                 return details

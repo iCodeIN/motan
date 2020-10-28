@@ -17,5 +17,5 @@ class TestEmptyPermissionGroup(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = EmptyPermissionGroup().check_vulnerability(analysis)
 
-        assert vulnerability.id == "EmptyPermissionGroup"
+        assert vulnerability.id == EmptyPermissionGroup.__name__
         assert len(vulnerability.code) == 1

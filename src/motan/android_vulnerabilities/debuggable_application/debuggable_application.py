@@ -35,7 +35,9 @@ class DebuggableApplication(categories.IManifestVulnerability):
                 vulnerability_found = True
                 details.code.append(
                     vuln.VulnerableCode(
-                        'android:debuggable="true"', "AndroidManifest.xml"
+                        'android:debuggable="true"',
+                        "AndroidManifest.xml",
+                        "AndroidManifest.xml",
                     )
                 )
 

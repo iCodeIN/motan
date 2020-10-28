@@ -48,6 +48,7 @@ class ExportedWithoutPrefix(categories.IManifestVulnerability):
                             vuln.VulnerableCode(
                                 f'exported {tag} "{name}" without "android:" prefix',
                                 "AndroidManifest.xml",
+                                "AndroidManifest.xml",
                             )
                         )
 

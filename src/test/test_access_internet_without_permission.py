@@ -19,5 +19,5 @@ class TestAccessInternetWithoutPermission(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = AccessInternetWithoutPermission().check_vulnerability(analysis)
 
-        assert vulnerability.id == "AccessInternetWithoutPermission"
+        assert vulnerability.id == AccessInternetWithoutPermission.__name__
         assert len(vulnerability.code) == 1

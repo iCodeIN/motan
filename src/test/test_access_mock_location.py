@@ -17,5 +17,5 @@ class TestAccessMockLocation(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = AccessMockLocation().check_vulnerability(analysis)
 
-        assert vulnerability.id == "AccessMockLocation"
+        assert vulnerability.id == AccessMockLocation.__name__
         assert len(vulnerability.code) == 1

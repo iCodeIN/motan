@@ -17,5 +17,5 @@ class TestDebuggableApplication(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = DebuggableApplication().check_vulnerability(analysis)
 
-        assert vulnerability.id == "DebuggableApplication"
+        assert vulnerability.id == DebuggableApplication.__name__
         assert len(vulnerability.code) == 1

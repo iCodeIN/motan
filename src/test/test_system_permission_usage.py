@@ -17,5 +17,5 @@ class TestSystemPermissionUsage(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = SystemPermissionUsage().check_vulnerability(analysis)
 
-        assert vulnerability.id == "SystemPermissionUsage"
+        assert vulnerability.id == SystemPermissionUsage.__name__
         assert len(vulnerability.code) == 1

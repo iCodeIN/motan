@@ -56,7 +56,11 @@ class CordovaAllowNavigationAllHttps(categories.IHybridAppVulnerability):
                 ):
                     vulnerability_found = True
                     details.code.append(
-                        vuln.VulnerableCode(etree.tostring(item), "res/xml/config.xml")
+                        vuln.VulnerableCode(
+                            etree.tostring(item),
+                            "res/xml/config.xml",
+                            "res/xml/config.xml",
+                        )
                     )
 
             if vulnerability_found:

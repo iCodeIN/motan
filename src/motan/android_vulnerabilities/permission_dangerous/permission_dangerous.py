@@ -42,7 +42,9 @@ class PermissionDangerous(categories.IManifestVulnerability):
                     vulnerability_found = True
                     details.code.append(
                         vuln.VulnerableCode(
-                            f'dangerous permission "{p_name}"', "AndroidManifest.xml"
+                            f'dangerous permission "{p_name}"',
+                            "AndroidManifest.xml",
+                            "AndroidManifest.xml",
                         )
                     )
 

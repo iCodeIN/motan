@@ -17,5 +17,5 @@ class TestDefaultSchemeHttp(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = DefaultSchemeHttp().check_vulnerability(analysis)
 
-        assert vulnerability.id == "DefaultSchemeHttp"
+        assert vulnerability.id == DefaultSchemeHttp.__name__
         assert len(vulnerability.code) == 1

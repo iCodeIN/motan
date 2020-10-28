@@ -2,14 +2,82 @@
 
 import logging
 import os
-from typing import Optional
+from typing import Optional, List
 
-from androguard.core.bytecodes.dvm import EncodedMethod
+from androguard.core.analysis.analysis import MethodAnalysis
 
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import AndroidAnalysis
-from motan.util import is_class_implementing_interfaces, RegisterAnalyzer
+from motan.taint_analysis import TaintAnalysis, RegisterAnalyzer
+from motan.util import is_class_implementing_interfaces
+
+
+class CustomTaintAnalysis(TaintAnalysis):
+    def vulnerable_path_found_callback(
+        self,
+        full_path: List[MethodAnalysis],
+        caller: MethodAnalysis = None,
+        target: MethodAnalysis = None,
+        last_invocation_params: list = None,
+    ):
+        if (
+            caller
+            and target
+            and last_invocation_params
+            and len(last_invocation_params) > 1
+        ):
+            try:
+                hostname_verifier_class = last_invocation_params[-1].get_class_name()
+            except Exception:
+                hostname_verifier_class = None
+
+            # Look for the implementation(s) of the HostnameVerifier interface
+            # (https://developer.android.com/reference/javax/net/ssl/HostnameVerifier)
+            # and check if the return value is hardcoded to true (1).
+            interface_implementations = []
+            classes = self._analysis_info.get_dex_analysis().get_internal_classes()
+            for clazz in classes:
+                if is_class_implementing_interfaces(
+                    clazz.get_vm_class(), ["Ljavax/net/ssl/HostnameVerifier;"]
+                ):
+                    for method in clazz.get_vm_class().get_methods():
+                        if (method.get_name() == "verify") and (
+                            method.get_descriptor()
+                            == "(Ljava/lang/String; Ljavax/net/ssl/SSLSession;)Z"
+                        ):
+                            register_analyzer = RegisterAnalyzer(
+                                self._analysis_info.get_apk_analysis(),
+                                self._analysis_info.get_dex_analysis(),
+                            )
+                            register_analyzer.load_instructions(
+                                method.get_instructions()
+                            )
+                            result = register_analyzer.get_return_value()
+
+                            # 1 means all hostnames are verified (the vulnerability is
+                            # present).
+                            if result == 1:
+                                interface_implementations.append(
+                                    method.get_class_name()
+                                )
+
+            # Check if hostname_verifier_class is in the list of classes that
+            # implement HostnameVerifier interface with a hardcoded return
+            # value.
+            if hostname_verifier_class in interface_implementations:
+                # The key is the full method signature where the vulnerable code was
+                # found, while the value is a tuple with the signature of the vulnerable
+                # target method and the full path leading to the vulnerability.
+                self.vulnerabilities[
+                    f"{caller.class_name}->{caller.name}{caller.descriptor}"
+                ] = (
+                    f"{hostname_verifier_class}->"
+                    "verify(Ljava/lang/String; Ljavax/net/ssl/SSLSession;)Z",
+                    " --> ".join(
+                        f"{p.class_name}->{p.name}{p.descriptor}" for p in full_path
+                    ),
+                )
 
 
 class InsecureHostnameVerifier(categories.ICodeVulnerability):
@@ -33,43 +101,8 @@ class InsecureHostnameVerifier(categories.ICodeVulnerability):
 
             dx = analysis_info.get_dex_analysis()
 
-            # Look for the implementation(s) of the HostnameVerifier interface
-            # (https://developer.android.com/reference/javax/net/ssl/HostnameVerifier)
-            # and check if the return value is hardcoded to true (1).
-            interface_implementations = []
-            classes = dx.get_internal_classes()
-            for clazz in classes:
-                if is_class_implementing_interfaces(
-                    clazz.get_vm_class(), ["Ljavax/net/ssl/HostnameVerifier;"]
-                ):
-                    for method in clazz.get_vm_class().get_methods():
-                        if (method.get_name() == "verify") and (
-                            method.get_descriptor()
-                            == "(Ljava/lang/String; Ljavax/net/ssl/SSLSession;)Z"
-                        ):
-                            register_analyzer = RegisterAnalyzer(
-                                method.get_instructions(),
-                                apk_analysis=analysis_info.get_apk_analysis(),
-                                dex_analysis=analysis_info.get_dex_analysis(),
-                            )
-                            result = (
-                                register_analyzer.get_last_instruction_return_value()
-                            )
-
-                            # 1 means all hostnames are verified (the vulnerability is
-                            # present).
-                            if result == 1:
-                                interface_implementations.append(
-                                    method.get_class_name()
-                                )
-
-            # No HostnameVerifier interface implementation was not found, there is no
-            # reason to continue checking this vulnerability.
-            if not interface_implementations:
-                return None
-
             # The target methods are the ones that set the HostnameVerifier.
-            target_methods = [
+            target_methods: List[MethodAnalysis] = [
                 dx.get_method_analysis_by_name(
                     "Ljavax/net/ssl/HttpsURLConnection;",
                     "setHostnameVerifier",
@@ -82,106 +115,13 @@ class InsecureHostnameVerifier(categories.ICodeVulnerability):
                 ),
             ]
 
-            # No target methods were found, there is no reason to continue checking
-            # this vulnerability.
-            if not target_methods or not any(target_methods):
-                return None
+            taint_analysis = CustomTaintAnalysis(target_methods, analysis_info)
 
-            # The list of methods that contain the vulnerability. The key is the full
-            # method signature where the vulnerable code was found, while the value is
-            # the signature of the vulnerable API/other info about the vulnerability.
-            vulnerable_methods = {}
+            code_vulnerabilities = taint_analysis.find_code_vulnerabilities()
 
-            for caller_set, original in [
-                (target_method.get_xref_from(), target_method)
-                for target_method in target_methods
-                if target_method
-            ]:
-                for caller in caller_set:
-                    caller_method: EncodedMethod = caller[1].get_method()
-                    offset_in_caller_code: int = caller[2]
-
-                    # Ignore excluded methods (if any).
-                    if analysis_info.ignore_libs:
-                        if any(
-                            caller_method.get_class_name().startswith(prefix)
-                            for prefix in analysis_info.ignored_classes_prefixes
-                        ):
-                            continue
-
-                    # Get the position (of the target_method invocation) from the offset
-                    # value.
-                    target_method_pos = (
-                        caller_method.get_code()
-                        .get_bc()
-                        .off_to_pos(offset_in_caller_code)
-                    )
-
-                    target_instr = caller_method.get_instruction(target_method_pos)
-
-                    self.logger.debug("")
-                    self.logger.debug(
-                        f"This is the target method invocation "
-                        f"(found in class '{caller_method.get_class_name()}'): "
-                        f"{target_instr.get_name()} {target_instr.get_output()}"
-                    )
-
-                    interesting_register = f"v{target_instr.get_operands()[-2][1]}"
-                    self.logger.debug(
-                        f"Register with interesting param: {interesting_register}"
-                    )
-                    self.logger.debug(
-                        "Going backwards in the list of instructions to check the "
-                        "register's value..."
-                    )
-
-                    off = 0
-                    for n, i in enumerate(caller_method.get_instructions()):
-                        self.logger.debug(
-                            f"{n:8d} (0x{off:08x}) {i.get_name():30} {i.get_output()}"
-                        )
-
-                        off += i.get_length()
-                        if off > offset_in_caller_code:
-                            break
-
-                    register_analyzer = RegisterAnalyzer(
-                        caller_method.get_instructions(),
-                        offset_in_caller_code,
-                        analysis_info.get_apk_analysis(),
-                        analysis_info.get_dex_analysis(),
-                    )
-                    result = RegisterAnalyzer.Result(
-                        register_analyzer.get_last_instruction_register_to_value_mapping()
-                    )
-
-                    try:
-                        hostname_verifier_class = result.get_result()[
-                            -2
-                        ].get_class_name()
-                    except Exception:
-                        hostname_verifier_class = None
-
-                    self.logger.debug(
-                        f"{interesting_register} value is {hostname_verifier_class}"
-                    )
-
-                    # Check if hostname_verifier_class is in the list of classes that
-                    # implement HostnameVerifier interface with a hardcoded return
-                    # value.
-                    if hostname_verifier_class in interface_implementations:
-                        vulnerable_methods[
-                            f"{caller_method.get_class_name()}->"
-                            f"{caller_method.get_name()}"
-                            f"{caller_method.get_descriptor()}"
-                        ] = (
-                            f"{hostname_verifier_class}->"
-                            f"verify(Ljava/lang/String; Ljavax/net/ssl/SSLSession;)Z"
-                        )
-
-            for key, value in vulnerable_methods.items():
+            if code_vulnerabilities:
                 vulnerability_found = True
-                details.code.append(vuln.VulnerableCode(value, key))
+                details.code.extend(code_vulnerabilities)
 
             if vulnerability_found:
                 return details

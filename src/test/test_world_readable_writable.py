@@ -17,5 +17,5 @@ class TestWorldReadableWritable(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = WorldReadableWritable().check_vulnerability(analysis)
 
-        assert vulnerability.id == "WorldReadableWritable"
+        assert vulnerability.id == WorldReadableWritable.__name__
         assert len(vulnerability.code) == 1

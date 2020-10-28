@@ -17,5 +17,5 @@ class TestSharedUserId(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = SharedUserId().check_vulnerability(analysis)
 
-        assert vulnerability.id == "SharedUserId"
+        assert vulnerability.id == SharedUserId.__name__
         assert len(vulnerability.code) == 1

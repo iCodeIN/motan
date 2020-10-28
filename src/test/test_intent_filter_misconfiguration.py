@@ -19,5 +19,5 @@ class TestIntentFilterMisconfiguration(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = IntentFilterMisconfiguration().check_vulnerability(analysis)
 
-        assert vulnerability.id == "IntentFilterMisconfiguration"
+        assert vulnerability.id == IntentFilterMisconfiguration.__name__
         assert len(vulnerability.code) == 1

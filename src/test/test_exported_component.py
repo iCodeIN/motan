@@ -18,5 +18,5 @@ class TestExportedComponent(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = ExportedComponent().check_vulnerability(analysis)
 
-        assert vulnerability.id == "ExportedComponent"
+        assert vulnerability.id == ExportedComponent.__name__
         assert len(vulnerability.code) == 6

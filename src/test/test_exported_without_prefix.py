@@ -17,5 +17,5 @@ class TestExportedWithoutPrefix(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = ExportedWithoutPrefix().check_vulnerability(analysis)
 
-        assert vulnerability.id == "ExportedWithoutPrefix"
+        assert vulnerability.id == ExportedWithoutPrefix.__name__
         assert len(vulnerability.code) == 1

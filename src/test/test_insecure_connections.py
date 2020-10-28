@@ -17,5 +17,5 @@ class TestInsecureConnection(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = InsecureConnection().check_vulnerability(analysis)
 
-        assert vulnerability.id == "InsecureConnection"
+        assert vulnerability.id == InsecureConnection.__name__
         assert len(vulnerability.code) == 2

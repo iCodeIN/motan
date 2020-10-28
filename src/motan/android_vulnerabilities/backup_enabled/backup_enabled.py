@@ -35,14 +35,18 @@ class BackupEnabled(categories.IManifestVulnerability):
                 vulnerability_found = True
                 details.code.append(
                     vuln.VulnerableCode(
-                        "allowBackup not set (true by default)", "AndroidManifest.xml"
+                        "allowBackup not set (true by default)",
+                        "AndroidManifest.xml",
+                        "AndroidManifest.xml",
                     )
                 )
             elif allow_backup and allow_backup.lower() == "true":
                 vulnerability_found = True
                 details.code.append(
                     vuln.VulnerableCode(
-                        'android:allowBackup="true"', "AndroidManifest.xml"
+                        'android:allowBackup="true"',
+                        "AndroidManifest.xml",
+                        "AndroidManifest.xml",
                     )
                 )
 

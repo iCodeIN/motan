@@ -17,5 +17,5 @@ class TestAllowAllHostname(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = AllowAllHostname().check_vulnerability(analysis)
 
-        assert vulnerability.id == "AllowAllHostname"
+        assert vulnerability.id == AllowAllHostname.__name__
         assert len(vulnerability.code) == 1

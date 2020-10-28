@@ -2,15 +2,56 @@
 
 import logging
 import os
-from typing import Optional
+from typing import Optional, List
 
 from androguard.core.analysis.analysis import MethodAnalysis
-from androguard.core.bytecodes.dvm import EncodedMethod
 
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import AndroidAnalysis
-from motan.util import RegisterAnalyzer
+from motan.taint_analysis import TaintAnalysis, ClassContainer
+
+
+class CustomTaintAnalysis(TaintAnalysis):
+    def vulnerable_path_found_callback(
+        self,
+        full_path: List[MethodAnalysis],
+        caller: MethodAnalysis = None,
+        target: MethodAnalysis = None,
+        last_invocation_params: list = None,
+    ):
+        if (
+            caller
+            and target
+            and last_invocation_params
+            and len(last_invocation_params) > 1
+        ):
+            try:
+                if isinstance(last_invocation_params[-1], ClassContainer):
+                    hostname_val = last_invocation_params[-1].get_class_name()
+                else:
+                    hostname_val = last_invocation_params[-1].get_full_name()
+            except Exception:
+                hostname_val = None
+
+            # Check if hostname_val is vulnerable.
+            if hostname_val in [
+                "Lorg/apache/http/conn/ssl/AllowAllHostnameVerifier;",
+                "Lorg/apache/http/conn/ssl/SSLSocketFactory;->"
+                "ALLOW_ALL_HOSTNAME_VERIFIER "
+                "Lorg/apache/http/conn/ssl/X509HostnameVerifier;",
+            ]:
+                # The key is the full method signature where the vulnerable code was
+                # found, while the value is a tuple with the signature of the vulnerable
+                # target method and the full path leading to the vulnerability.
+                self.vulnerabilities[
+                    f"{caller.class_name}->{caller.name}{caller.descriptor}"
+                ] = (
+                    f"{target.class_name}->{target.name}{target.descriptor}",
+                    " --> ".join(
+                        f"{p.class_name}->{p.name}{p.descriptor}" for p in full_path
+                    ),
+                )
 
 
 class AllowAllHostname(categories.ICodeVulnerability):
@@ -43,107 +84,13 @@ class AllowAllHostname(categories.ICodeVulnerability):
                 "(Lorg/apache/http/conn/ssl/X509HostnameVerifier;)V",
             )
 
-            # The target method was not found, there is no reason to continue checking
-            # this vulnerability.
-            if not target_method:
-                return None
+            taint_analysis = CustomTaintAnalysis(target_method, analysis_info)
 
-            # The list of methods that contain the vulnerability. The key is the full
-            # method signature where the vulnerable code was found, while the value is
-            # the signature of the vulnerable API/other info about the vulnerability.
-            vulnerable_methods = {}
+            code_vulnerabilities = taint_analysis.find_code_vulnerabilities()
 
-            for caller in target_method.get_xref_from():
-                caller_method: EncodedMethod = caller[1].get_method()
-                offset_in_caller_code: int = caller[2]
-
-                # Ignore excluded methods (if any).
-                if analysis_info.ignore_libs:
-                    if any(
-                        caller_method.get_class_name().startswith(prefix)
-                        for prefix in analysis_info.ignored_classes_prefixes
-                    ):
-                        continue
-
-                # Get the position (of the target_method invocation) from the offset
-                # value.
-                target_method_pos = (
-                    caller_method.get_code().get_bc().off_to_pos(offset_in_caller_code)
-                )
-
-                target_instr = caller_method.get_instruction(target_method_pos)
-
-                self.logger.debug("")
-                self.logger.debug(
-                    f"This is the target method invocation "
-                    f"(found in class '{caller_method.get_class_name()}'): "
-                    f"{target_instr.get_name()} {target_instr.get_output()}"
-                )
-
-                interesting_register = f"v{target_instr.get_operands()[-2][1]}"
-                self.logger.debug(
-                    f"Register with interesting param: {interesting_register}"
-                )
-                self.logger.debug(
-                    "Going backwards in the list of instructions to check the "
-                    "register's value..."
-                )
-
-                off = 0
-                for n, i in enumerate(caller_method.get_instructions()):
-                    self.logger.debug(
-                        f"{n:8d} (0x{off:08x}) {i.get_name():30} {i.get_output()}"
-                    )
-
-                    off += i.get_length()
-                    if off > offset_in_caller_code:
-                        break
-
-                register_analyzer = RegisterAnalyzer(
-                    caller_method.get_instructions(),
-                    offset_in_caller_code,
-                    analysis_info.get_apk_analysis(),
-                    analysis_info.get_dex_analysis(),
-                )
-                result = RegisterAnalyzer.Result(
-                    register_analyzer.get_last_instruction_register_to_value_mapping()
-                )
-
-                try:
-                    if result.is_class_container(-2):
-                        hostname_verifier_value = result.get_result()[
-                            -2
-                        ].get_class_name()
-                    else:
-                        hostname_verifier_value = result.get_result()[
-                            -2
-                        ].get_full_name()
-                except Exception:
-                    hostname_verifier_value = None
-
-                self.logger.debug(
-                    f"{interesting_register} value is {hostname_verifier_value}"
-                )
-
-                # Check if hostname_verifier_value is vulnerable.
-                if hostname_verifier_value in [
-                    "Lorg/apache/http/conn/ssl/AllowAllHostnameVerifier;",
-                    "Lorg/apache/http/conn/ssl/SSLSocketFactory;->"
-                    "ALLOW_ALL_HOSTNAME_VERIFIER "
-                    "Lorg/apache/http/conn/ssl/X509HostnameVerifier;",
-                ]:
-                    vulnerable_methods[
-                        f"{caller_method.get_class_name()}->"
-                        f"{caller_method.get_name()}{caller_method.get_descriptor()}"
-                    ] = (
-                        f"{target_method.get_method().get_class_name()}->"
-                        f"{target_method.get_method().get_name()}"
-                        f"{target_method.get_method().get_descriptor()}"
-                    )
-
-            for key, value in vulnerable_methods.items():
+            if code_vulnerabilities:
                 vulnerability_found = True
-                details.code.append(vuln.VulnerableCode(value, key))
+                details.code.extend(code_vulnerabilities)
 
             if vulnerability_found:
                 return details

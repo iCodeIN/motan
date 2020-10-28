@@ -17,5 +17,5 @@ class TestDynamicCodeLoading(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = DynamicCodeLoading().check_vulnerability(analysis)
 
-        assert vulnerability.id == "DynamicCodeLoading"
+        assert vulnerability.id == DynamicCodeLoading.__name__
         assert len(vulnerability.code) == 1

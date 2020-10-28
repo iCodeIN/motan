@@ -198,6 +198,7 @@ class ObfuscationLow(categories.ICodeVulnerability):
                         f"ASCII Obfuscation: {ascii_obfuscation_rate:.2f}% "
                         f"Renaming Obfuscation: {short_name_obfuscation_rate:.2f}%",
                         "application",
+                        "application",
                     )
                 )
 

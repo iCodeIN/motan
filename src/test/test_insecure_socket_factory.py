@@ -18,5 +18,5 @@ class TestInsecureSocket(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = InsecureSocketFactory().check_vulnerability(analysis)
 
-        assert vulnerability.id == "InsecureSocketFactory"
+        assert vulnerability.id == InsecureSocketFactory.__name__
         assert len(vulnerability.code) == 1

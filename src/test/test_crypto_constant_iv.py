@@ -18,5 +18,5 @@ class TestCryptoConstantIv(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = CryptoConstantIv().check_vulnerability(analysis)
 
-        assert vulnerability.id == "CryptoConstantIv"
+        assert vulnerability.id == CryptoConstantIv.__name__
         assert len(vulnerability.code) == 1

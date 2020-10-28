@@ -19,5 +19,5 @@ class TestKeystoreWithoutPassword(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = KeystoreWithoutPassword().check_vulnerability(analysis)
 
-        assert vulnerability.id == "KeystoreWithoutPassword"
+        assert vulnerability.id == KeystoreWithoutPassword.__name__
         assert len(vulnerability.code) == 1

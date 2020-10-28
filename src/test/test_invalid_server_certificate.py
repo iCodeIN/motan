@@ -20,7 +20,7 @@ class TestInvalidServerCertificate(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = InvalidServerCertificate().check_vulnerability(analysis)
 
-        assert vulnerability.id == "InvalidServerCertificate"
+        assert vulnerability.id == InvalidServerCertificate.__name__
         assert len(vulnerability.code) == 1
 
     def test_existing_vulnerability2(self):
@@ -34,5 +34,5 @@ class TestInvalidServerCertificate(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = InvalidServerCertificate().check_vulnerability(analysis)
 
-        assert vulnerability.id == "InvalidServerCertificate"
+        assert vulnerability.id == InvalidServerCertificate.__name__
         assert len(vulnerability.code) == 1

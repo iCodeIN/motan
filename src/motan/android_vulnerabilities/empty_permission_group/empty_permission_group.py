@@ -36,7 +36,9 @@ class EmptyPermissionGroup(categories.IManifestVulnerability):
                 if p_details["permissionGroup"] == "":
                     vulnerability_found = True
                     details.code.append(
-                        vuln.VulnerableCode(p_name, "AndroidManifest.xml")
+                        vuln.VulnerableCode(
+                            p_name, "AndroidManifest.xml", "AndroidManifest.xml"
+                        )
                     )
 
             if vulnerability_found:

@@ -17,5 +17,5 @@ class TestImplicitIntentService(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = ImplicitIntentService().check_vulnerability(analysis)
 
-        assert vulnerability.id == "ImplicitIntentService"
+        assert vulnerability.id == ImplicitIntentService.__name__
         assert len(vulnerability.code) == 1

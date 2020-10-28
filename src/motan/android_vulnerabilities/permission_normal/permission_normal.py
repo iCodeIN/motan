@@ -43,7 +43,9 @@ class PermissionNormal(categories.IManifestVulnerability):
                     vulnerability_found = True
                     details.code.append(
                         vuln.VulnerableCode(
-                            f'normal permission "{p_name}"', "AndroidManifest.xml"
+                            f'normal permission "{p_name}"',
+                            "AndroidManifest.xml",
+                            "AndroidManifest.xml",
                         )
                     )
 

@@ -17,5 +17,5 @@ class TestPermissionDangerous(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = PermissionDangerous().check_vulnerability(analysis)
 
-        assert vulnerability.id == "PermissionDangerous"
+        assert vulnerability.id == PermissionDangerous.__name__
         assert len(vulnerability.code) == 1

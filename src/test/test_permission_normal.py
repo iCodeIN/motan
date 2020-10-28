@@ -17,5 +17,5 @@ class TestPermissionNormal(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = PermissionNormal().check_vulnerability(analysis)
 
-        assert vulnerability.id == "PermissionNormal"
+        assert vulnerability.id == PermissionNormal.__name__
         assert len(vulnerability.code) == 1

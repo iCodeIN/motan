@@ -57,6 +57,8 @@ class ImplicitIntentService(categories.IManifestVulnerability):
                             )
                             if detail:
                                 level = detail["protectionLevel"]
+                                if level == "None":
+                                    level = None
                                 if (
                                     level
                                     and (int(level, 16) == 0x0 or int(level, 16) == 0x1)
@@ -78,6 +80,7 @@ class ImplicitIntentService(categories.IManifestVulnerability):
                             details.code.append(
                                 vuln.VulnerableCode(
                                     f'service "{name}" has intent filters',
+                                    "AndroidManifest.xml",
                                     "AndroidManifest.xml",
                                 )
                             )

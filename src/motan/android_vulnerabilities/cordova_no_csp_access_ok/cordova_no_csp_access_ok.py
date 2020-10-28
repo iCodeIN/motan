@@ -103,7 +103,9 @@ class CordovaNoCspAccessOk(categories.IHybridAppVulnerability):
                     # Access seems configured properly, CSP not configured.
                     vulnerability_found = True
                     details.code.append(
-                        vuln.VulnerableCode("CSP not configured", main_html_file)
+                        vuln.VulnerableCode(
+                            "CSP not configured", main_html_file, main_html_file
+                        )
                     )
 
             if vulnerability_found:

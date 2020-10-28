@@ -17,5 +17,5 @@ class TestAccessDeviceId(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = AccessDeviceId().check_vulnerability(analysis)
 
-        assert vulnerability.id == "AccessDeviceId"
+        assert vulnerability.id == AccessDeviceId.__name__
         assert len(vulnerability.code) == 1

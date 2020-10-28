@@ -18,5 +18,5 @@ class TestCryptoConstantSalt(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = CryptoConstantSalt().check_vulnerability(analysis)
 
-        assert vulnerability.id == "CryptoConstantSalt"
+        assert vulnerability.id == CryptoConstantSalt.__name__
         assert len(vulnerability.code) == 1

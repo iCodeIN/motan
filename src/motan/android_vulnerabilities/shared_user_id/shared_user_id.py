@@ -37,7 +37,9 @@ class SharedUserId(categories.IManifestVulnerability):
                 vulnerability_found = True
                 details.code.append(
                     vuln.VulnerableCode(
-                        f'shared user id "{user_id}"', "AndroidManifest.xml"
+                        f'shared user id "{user_id}"',
+                        "AndroidManifest.xml",
+                        "AndroidManifest.xml",
                     )
                 )
 

@@ -18,5 +18,5 @@ class TestSendSms(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = SendSms().check_vulnerability(analysis)
 
-        assert vulnerability.id == "SendSms"
+        assert vulnerability.id == SendSms.__name__
         assert len(vulnerability.code) == 1

@@ -20,5 +20,5 @@ class TestInsecureHostnameVerifier(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = InsecureHostnameVerifier().check_vulnerability(analysis)
 
-        assert vulnerability.id == "InsecureHostnameVerifier"
+        assert vulnerability.id == InsecureHostnameVerifier.__name__
         assert len(vulnerability.code) == 1

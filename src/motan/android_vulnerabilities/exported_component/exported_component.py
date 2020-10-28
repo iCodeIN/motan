@@ -85,6 +85,8 @@ class ExportedComponent(categories.IManifestVulnerability):
                                 )
                                 if detail:
                                     level = detail["protectionLevel"]
+                                    if level == "None":
+                                        level = None
                                     if (
                                         level
                                         and (
@@ -111,6 +113,7 @@ class ExportedComponent(categories.IManifestVulnerability):
                                 details.code.append(
                                     vuln.VulnerableCode(
                                         f'exported {tag} "{name}"',
+                                        "AndroidManifest.xml",
                                         "AndroidManifest.xml",
                                     )
                                 )

@@ -17,5 +17,5 @@ class TestRuntimeCommand(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = RuntimeCommand().check_vulnerability(analysis)
 
-        assert vulnerability.id == "RuntimeCommand"
+        assert vulnerability.id == RuntimeCommand.__name__
         assert len(vulnerability.code) == 1

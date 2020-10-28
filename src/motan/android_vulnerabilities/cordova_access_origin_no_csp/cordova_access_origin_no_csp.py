@@ -105,7 +105,9 @@ class CordovaAccessOriginNoCsp(categories.IHybridAppVulnerability):
                         vulnerability_found = True
                         for item in access_issues:
                             details.code.append(
-                                vuln.VulnerableCode(item, "res/xml/config.xml")
+                                vuln.VulnerableCode(
+                                    item, "res/xml/config.xml", "res/xml/config.xml"
+                                )
                             )
             else:
                 # Access is not configured, check CSP.
@@ -114,7 +116,9 @@ class CordovaAccessOriginNoCsp(categories.IHybridAppVulnerability):
                     vulnerability_found = True
                     for item in access_issues:
                         details.code.append(
-                            vuln.VulnerableCode(item, "res/xml/config.xml")
+                            vuln.VulnerableCode(
+                                item, "res/xml/config.xml", "res/xml/config.xml"
+                            )
                         )
 
             if vulnerability_found:

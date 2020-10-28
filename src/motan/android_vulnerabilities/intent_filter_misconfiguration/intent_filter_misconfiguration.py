@@ -45,6 +45,7 @@ class IntentFilterMisconfiguration(categories.IManifestVulnerability):
                                 vuln.VulnerableCode(
                                     f'intent misconfiguration in {tag} "{name}"',
                                     "AndroidManifest.xml",
+                                    "AndroidManifest.xml",
                                 )
                             )
 

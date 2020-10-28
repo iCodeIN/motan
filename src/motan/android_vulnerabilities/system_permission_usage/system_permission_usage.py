@@ -76,7 +76,9 @@ class SystemPermissionUsage(categories.IManifestVulnerability):
                 if perm in system_permissions:
                     vulnerability_found = True
                     details.code.append(
-                        vuln.VulnerableCode(perm, "AndroidManifest.xml")
+                        vuln.VulnerableCode(
+                            perm, "AndroidManifest.xml", "AndroidManifest.xml"
+                        )
                     )
 
             if vulnerability_found:

@@ -17,5 +17,5 @@ class TestBase64String(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = Base64String().check_vulnerability(analysis)
 
-        assert vulnerability.id == "Base64String"
+        assert vulnerability.id == Base64String.__name__
         assert len(vulnerability.code) == 2

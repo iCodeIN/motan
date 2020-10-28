@@ -17,5 +17,5 @@ class TestBackupEnabled(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = BackupEnabled().check_vulnerability(analysis)
 
-        assert vulnerability.id == "BackupEnabled"
+        assert vulnerability.id == BackupEnabled.__name__
         assert len(vulnerability.code) == 1

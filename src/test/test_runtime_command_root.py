@@ -17,5 +17,5 @@ class TestRuntimeCommandRoot(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = RuntimeCommandRoot().check_vulnerability(analysis)
 
-        assert vulnerability.id == "RuntimeCommandRoot"
+        assert vulnerability.id == RuntimeCommandRoot.__name__
         assert len(vulnerability.code) == 1

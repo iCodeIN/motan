@@ -17,5 +17,5 @@ class TestObfuscationMissing(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = ObfuscationMissing().check_vulnerability(analysis)
 
-        assert vulnerability.id == "ObfuscationMissing"
+        assert vulnerability.id == ObfuscationMissing.__name__
         assert len(vulnerability.code) == 1

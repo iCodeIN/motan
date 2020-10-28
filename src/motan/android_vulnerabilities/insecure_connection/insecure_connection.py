@@ -3,13 +3,28 @@
 import logging
 import os
 import re
-from typing import Optional
+from typing import Optional, List
 
+from androguard.core.analysis.analysis import MethodAnalysis
 from androguard.core.bytecodes.dvm import EncodedMethod
 
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import AndroidAnalysis
+from motan.taint_analysis import TaintAnalysis
+
+
+class CustomTaintAnalysis(TaintAnalysis):
+    def vulnerable_path_found_callback(
+        self,
+        full_path: List[MethodAnalysis],
+        caller: MethodAnalysis = None,
+        target: MethodAnalysis = None,
+        last_invocation_params: list = None,
+    ):
+        # This method is not used for the current vulnerability check, we only need this
+        # class to use one of its methods to get the paths to a target method.
+        pass
 
 
 class InsecureConnection(categories.ICodeVulnerability):
@@ -85,7 +100,8 @@ class InsecureConnection(categories.ICodeVulnerability):
             for string, string_analysis in dx.get_strings_analysis().items():
                 # The list of methods that contain the vulnerability. The key is the
                 # full method signature where the vulnerable code was found, while the
-                # value is the signature of the vulnerable API/other info about the
+                # value is a tuple with the signature of the vulnerable API/other info
+                # about the vulnerability and the full path leading to the
                 # vulnerability.
                 vulnerable_methods = {}
 
@@ -107,15 +123,26 @@ class InsecureConnection(categories.ICodeVulnerability):
                             ):
                                 continue
 
+                        taint_analysis = CustomTaintAnalysis(
+                            dx.get_method(caller_method), analysis_info
+                        )
+                        path_to_caller = taint_analysis.get_paths_to_target_method()[0]
+
                         vulnerable_methods[
                             f"{caller_method.get_class_name()}->"
                             f"{caller_method.get_name()}"
                             f"{caller_method.get_descriptor()}"
-                        ] = url
+                        ] = (
+                            url,
+                            " --> ".join(
+                                f"{p.class_name}->{p.name}{p.descriptor}"
+                                for p in path_to_caller
+                            ),
+                        )
 
                 for key, value in vulnerable_methods.items():
                     vulnerability_found = True
-                    details.code.append(vuln.VulnerableCode(value, key))
+                    details.code.append(vuln.VulnerableCode(value[0], key, value[1]))
 
             if vulnerability_found:
                 return details

@@ -19,7 +19,7 @@ class TestWebViewAllowFileAccess(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = WebViewAllowFileAccess().check_vulnerability(analysis)
 
-        assert vulnerability.id == "WebViewAllowFileAccess"
+        assert vulnerability.id == WebViewAllowFileAccess.__name__
         assert len(vulnerability.code) == 1
 
     def test_existing_vulnerability2(self):
@@ -33,5 +33,5 @@ class TestWebViewAllowFileAccess(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = WebViewAllowFileAccess().check_vulnerability(analysis)
 
-        assert vulnerability.id == "WebViewAllowFileAccess"
+        assert vulnerability.id == WebViewAllowFileAccess.__name__
         assert len(vulnerability.code) == 1

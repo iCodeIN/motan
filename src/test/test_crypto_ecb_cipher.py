@@ -18,5 +18,5 @@ class TestCryptoEcbCipher(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = CryptoEcbCipher().check_vulnerability(analysis)
 
-        assert vulnerability.id == "CryptoEcbCipher"
+        assert vulnerability.id == CryptoEcbCipher.__name__
         assert len(vulnerability.code) == 2

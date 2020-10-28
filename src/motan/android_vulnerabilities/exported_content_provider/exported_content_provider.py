@@ -51,6 +51,8 @@ class ExportedContentProvider(categories.IManifestVulnerability):
                             detail = apk.get_declared_permissions_details().get(p)
                             if detail:
                                 level = detail["protectionLevel"]
+                                if level == "None":
+                                    level = None
                                 if (
                                     level
                                     and (int(level, 16) == 0x0 or int(level, 16) == 0x1)
@@ -74,6 +76,7 @@ class ExportedContentProvider(categories.IManifestVulnerability):
                         details.code.append(
                             vuln.VulnerableCode(
                                 f'exported content provider "{name}"',
+                                "AndroidManifest.xml",
                                 "AndroidManifest.xml",
                             )
                         )

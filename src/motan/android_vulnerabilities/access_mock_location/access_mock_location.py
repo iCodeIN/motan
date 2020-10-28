@@ -35,7 +35,9 @@ class AccessMockLocation(categories.IManifestVulnerability):
                 vulnerability_found = True
                 details.code.append(
                     vuln.VulnerableCode(
-                        "android.permission.ACCESS_MOCK_LOCATION", "AndroidManifest.xml"
+                        "android.permission.ACCESS_MOCK_LOCATION",
+                        "AndroidManifest.xml",
+                        "AndroidManifest.xml",
                     )
                 )
 

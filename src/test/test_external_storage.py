@@ -17,5 +17,5 @@ class TestExternalStorage(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = ExternalStorage().check_vulnerability(analysis)
 
-        assert vulnerability.id == "ExternalStorage"
+        assert vulnerability.id == ExternalStorage.__name__
         assert len(vulnerability.code) == 1

@@ -53,8 +53,8 @@ class AccessInternetWithoutPermission(categories.ICodeVulnerability):
 
                 # The list of classes that contain the vulnerability. The key is the
                 # class signature where the vulnerable code was found, while the value
-                # is the signature of the vulnerable API/other info about the
-                # vulnerability.
+                # is a tuple with the signature of the vulnerable API/other info about
+                # the vulnerability and the full path leading to the vulnerability.
                 vulnerable_classes = {}
 
                 for caller_set, original in [
@@ -72,11 +72,14 @@ class AccessInternetWithoutPermission(categories.ICodeVulnerability):
                             ):
                                 continue
 
-                        vulnerable_classes[caller_class.name] = original.name
+                        vulnerable_classes[caller_class.name] = (
+                            original.name,
+                            f"{caller_class.name} --> {original.name}",
+                        )
 
                 for key, value in vulnerable_classes.items():
                     vulnerability_found = True
-                    details.code.append(vuln.VulnerableCode(value, key))
+                    details.code.append(vuln.VulnerableCode(value[0], key, value[1]))
 
             if vulnerability_found:
                 return details

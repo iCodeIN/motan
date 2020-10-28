@@ -17,5 +17,5 @@ class TestBase64Url(object):
         analysis = AndroidAnalysis(apk_path, ignore_libs=True)
         vulnerability = Base64Url().check_vulnerability(analysis)
 
-        assert vulnerability.id == "Base64Url"
+        assert vulnerability.id == Base64Url.__name__
         assert len(vulnerability.code) == 1
