@@ -27,7 +27,12 @@ logging.getLogger("yapsy").level = logging.ERROR
 logging.getLogger("androguard").level = logging.ERROR
 
 
-def perform_analysis(input_app_path: str, language: str, ignore_libs: bool = False):
+def perform_analysis(
+    input_app_path: str,
+    language: str,
+    ignore_libs: bool = False,
+    fail_fast: bool = False,
+):
     # Make sure the file to analyze is a valid file.
     if not os.path.isfile(input_app_path):
         logger.critical(f"Unable to find mobile application file '{input_app_path}'")
@@ -73,36 +78,35 @@ def perform_analysis(input_app_path: str, language: str, ignore_libs: bool = Fal
 
     found_vulnerabilities: List[VulnerabilityDetails] = []
 
-    try:
-        for item in manager.get_all_vulnerability_checks():
+    for item in manager.get_all_vulnerability_checks():
+        try:
             vulnerability_details = item.plugin_object.check_vulnerability(analysis)
             if vulnerability_details:
                 found_vulnerabilities.append(vulnerability_details)
+        except Exception as e:
+            if fail_fast:
+                logger.critical(
+                    f"Error during vulnerability analysis: {e}", exc_info=True
+                )
+                raise
 
-    except Exception as e:
-        logger.critical(f"Error during vulnerability analysis: {e}", exc_info=True)
-        raise
+    # Calculate the total time (in seconds) needed for the analysis.
+    analysis_duration = datetime.now() - analysis_start
 
-    finally:
-        # Calculate the total time (in seconds) needed for the analysis.
-        analysis_duration = datetime.now() - analysis_start
+    logger.info(
+        f"{len(analysis.checked_vulnerabilities)} vulnerabilities checked: "
+        f"{', '.join(analysis.checked_vulnerabilities)}"
+    )
 
+    if found_vulnerabilities:
         logger.info(
-            f"{len(analysis.checked_vulnerabilities)} vulnerabilities checked: "
-            f"{', '.join(analysis.checked_vulnerabilities)}"
+            f"{len(found_vulnerabilities)} vulnerabilities found: "
+            f"{', '.join(map(lambda x: x.id, found_vulnerabilities))}"
         )
+    else:
+        logger.info("0 vulnerabilities found")
 
-        if found_vulnerabilities:
-            logger.info(
-                f"{len(found_vulnerabilities)} vulnerabilities found: "
-                f"{', '.join(map(lambda x: x.id, found_vulnerabilities))}"
-            )
-        else:
-            logger.info("0 vulnerabilities found")
-
-        logger.info(
-            f"Analysis duration: {analysis_duration.total_seconds():.1f} seconds"
-        )
+    logger.info(f"Analysis duration: {analysis_duration.total_seconds():.1f} seconds")
 
     vulnerabilities_json = VulnerabilityDetails.Schema().dumps(
         found_vulnerabilities, many=True

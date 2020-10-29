@@ -465,14 +465,17 @@ class TaintAnalysis(ABC):
 
             return longest_paths
 
-        if isinstance(self._target_method, Iterable):
+        if not self._target_method:
+            return []
+
+        elif isinstance(self._target_method, Iterable):
             # We have to check a list of target methods, so find the paths for each
             # target method.
             to_return = []
             for m in self._target_method:
                 if isinstance(m, MethodAnalysis):
                     to_return.extend(get_paths(m))
-                elif m is not None:
+                elif m:
                     raise ValueError(
                         "The target method must be a MethodAnalysis or an iterable "
                         f"of MethodAnalysis (iterable of {type(m)} is not supported)"

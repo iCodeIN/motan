@@ -41,6 +41,11 @@ def get_cmd_args(args: List[str] = None):
         action="store_true",
         help="Ignore known third party libraries during the vulnerability analysis",
     )
+    parser.add_argument(
+        "--fail-fast",
+        action="store_true",
+        help="Make the entire analysis fail on the first failed vulnerability check",
+    )
     return parser.parse_args(args)
 
 
@@ -53,7 +58,12 @@ def main():
     if arguments.language:
         arguments.language = arguments.language.strip(" '\"")
 
-    perform_analysis(arguments.app_file, arguments.language, arguments.ignore_libs)
+    perform_analysis(
+        arguments.app_file,
+        arguments.language,
+        arguments.ignore_libs,
+        arguments.fail_fast,
+    )
 
 
 if __name__ == "__main__":
