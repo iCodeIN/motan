@@ -62,9 +62,8 @@ class CustomTaintAnalysis(TaintAnalysis):
                                     method.get_class_name()
                                 )
 
-            # Check if hostname_verifier_class is in the list of classes that
-            # implement HostnameVerifier interface with a hardcoded return
-            # value.
+            # Check if hostname_verifier_class is in the list of classes that implement
+            # HostnameVerifier interface with a hardcoded return value.
             if hostname_verifier_class in interface_implementations:
                 # The key is the full method signature where the vulnerable code was
                 # found, while the value is a tuple with the signature of the vulnerable
