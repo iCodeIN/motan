@@ -47,8 +47,8 @@ class WebViewIgnoreSslError(categories.ICodeVulnerability):
                     # Ignore excluded classes (if any).
                     if analysis_info.ignore_libs:
                         if any(
-                                clazz.name.startswith(prefix)
-                                for prefix in analysis_info.ignored_classes_prefixes
+                            clazz.name.startswith(prefix)
+                            for prefix in analysis_info.ignored_classes_prefixes
                         ):
                             continue
 
