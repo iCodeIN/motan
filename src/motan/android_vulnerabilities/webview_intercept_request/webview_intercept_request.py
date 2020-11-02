@@ -10,7 +10,7 @@ from motan.analysis import AndroidAnalysis
 from motan.taint_analysis import RegisterAnalyzer
 
 
-class WebViewOverrideUrl(categories.ICodeVulnerability):
+class WebViewInterceptRequest(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -37,7 +37,7 @@ class WebViewOverrideUrl(categories.ICodeVulnerability):
             # vulnerability and the full path leading to the vulnerability.
             vulnerable_methods = {}
 
-            # Look for subclasses of WebViewClient and check shouldOverrideUrlLoading
+            # Look for subclasses of WebViewClient and check shouldInterceptRequest
             # (https://developer.android.com/reference/android/webkit/WebViewClient)
             classes = dx.get_internal_classes()
             for clazz in classes:
@@ -57,13 +57,15 @@ class WebViewOverrideUrl(categories.ICodeVulnerability):
                     for method in clazz.get_vm_class().get_methods():
                         for target_name, target_descriptor in [
                             (
-                                "shouldOverrideUrlLoading",
-                                "(Landroid/webkit/WebView; Ljava/lang/String;)Z",
+                                "shouldInterceptRequest",
+                                "(Landroid/webkit/WebView; Ljava/lang/String;)"
+                                "Landroid/webkit/WebResourceResponse;",
                             ),
                             (
-                                "shouldOverrideUrlLoading",
+                                "shouldInterceptRequest",
                                 "(Landroid/webkit/WebView; "
-                                "Landroid/webkit/WebResourceRequest;)Z",
+                                "Landroid/webkit/WebResourceRequest;)"
+                                "Landroid/webkit/WebResourceResponse;",
                             ),
                         ]:
                             if (
@@ -81,7 +83,7 @@ class WebViewOverrideUrl(categories.ICodeVulnerability):
                                 )
                                 result = register_analyzer.get_return_value()
 
-                                # 0 means that false was returned.
+                                # 0 means that null was returned.
                                 if result == 0:
                                     vulnerable_methods[method.get_class_name()] = (
                                         f"{method.get_name()}{method.get_descriptor()}",
@@ -90,10 +92,10 @@ class WebViewOverrideUrl(categories.ICodeVulnerability):
                                     )
 
                     if not method_found:
-                        # shouldOverrideUrlLoading returns false by default.
+                        # shouldInterceptRequest was not overridden.
                         vulnerable_methods[clazz.name] = (
-                            "shouldOverrideUrlLoading not overridden, returns false "
-                            "by default",
+                            "shouldInterceptRequest not overridden, any resource can "
+                            "be loaded",
                             f"{clazz.name}",
                         )
 

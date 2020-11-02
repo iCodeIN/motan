@@ -60,6 +60,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/sqlite_exec_sql" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_javascript_interface" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_override_url" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_intercept_request" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_ignore_ssl_error" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (motan)" jdkType="Python SDK" />

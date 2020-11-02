@@ -7,10 +7,9 @@ from typing import Optional
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import AndroidAnalysis
-from motan.taint_analysis import RegisterAnalyzer
 
 
-class WebViewOverrideUrl(categories.ICodeVulnerability):
+class WebViewIgnoreSslError(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -37,7 +36,7 @@ class WebViewOverrideUrl(categories.ICodeVulnerability):
             # vulnerability and the full path leading to the vulnerability.
             vulnerable_methods = {}
 
-            # Look for subclasses of WebViewClient and check shouldOverrideUrlLoading
+            # Look for subclasses of WebViewClient and check onReceivedSslError
             # (https://developer.android.com/reference/android/webkit/WebViewClient)
             classes = dx.get_internal_classes()
             for clazz in classes:
@@ -53,49 +52,24 @@ class WebViewOverrideUrl(categories.ICodeVulnerability):
                         ):
                             continue
 
-                    method_found = False
                     for method in clazz.get_vm_class().get_methods():
-                        for target_name, target_descriptor in [
-                            (
-                                "shouldOverrideUrlLoading",
-                                "(Landroid/webkit/WebView; Ljava/lang/String;)Z",
-                            ),
-                            (
-                                "shouldOverrideUrlLoading",
-                                "(Landroid/webkit/WebView; "
-                                "Landroid/webkit/WebResourceRequest;)Z",
-                            ),
-                        ]:
-                            if (
-                                method.name == target_name
-                                and method.descriptor == target_descriptor
-                            ):
-                                method_found = True
-
-                                register_analyzer = RegisterAnalyzer(
-                                    analysis_info.get_apk_analysis(),
-                                    analysis_info.get_dex_analysis(),
-                                )
-                                register_analyzer.load_instructions(
-                                    method.get_instructions()
-                                )
-                                result = register_analyzer.get_return_value()
-
-                                # 0 means that false was returned.
-                                if result == 0:
+                        if (
+                            method.name == "onReceivedSslError"
+                            and method.descriptor == "(Landroid/webkit/WebView; "
+                            "Landroid/webkit/SslErrorHandler; "
+                            "Landroid/net/http/SslError;)V"
+                        ):
+                            for i in method.get_instructions():
+                                if i.get_output().endswith(
+                                    "Landroid/webkit/SslErrorHandler;->proceed()V"
+                                ):
                                     vulnerable_methods[method.get_class_name()] = (
                                         f"{method.get_name()}{method.get_descriptor()}",
                                         f"{method.get_class_name()}->"
-                                        f"{method.get_name()}{method.get_descriptor()}",
+                                        f"{method.get_name()}{method.get_descriptor()}"
+                                        " --> "
+                                        "Landroid/webkit/SslErrorHandler;->proceed()V",
                                     )
-
-                    if not method_found:
-                        # shouldOverrideUrlLoading returns false by default.
-                        vulnerable_methods[clazz.name] = (
-                            "shouldOverrideUrlLoading not overridden, returns false "
-                            "by default",
-                            f"{clazz.name}",
-                        )
 
             for key, value in vulnerable_methods.items():
                 vulnerability_found = True

@@ -265,8 +265,8 @@ class RegisterAnalyzer(object):
         """
         try:
             last_instruction = self._execution_stack.get()
-            # 0F is a return instruction (e.g., return v5).
-            if last_instruction[0] == 0x0F:
+            # 0F, 10 and 11 are return instructions (e.g., return v5).
+            if 0x0F <= last_instruction[0] <= 0x11:
                 return self._register_values[last_instruction[1][0][1]]
             else:
                 return None

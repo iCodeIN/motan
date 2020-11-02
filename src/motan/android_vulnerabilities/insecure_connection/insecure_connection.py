@@ -51,7 +51,8 @@ class InsecureConnection(categories.ICodeVulnerability):
             # Url patterns to exclude from the results.
             exclude_start_with = (
                 "http://localhost",
-                "http://192.168",
+                "http://127.0.",
+                "http://192.168.",
                 "http://example.com",
                 "http://www.example.com",
                 "http://hostname",
