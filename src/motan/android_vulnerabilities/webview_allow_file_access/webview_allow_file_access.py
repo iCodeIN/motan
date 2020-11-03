@@ -80,7 +80,12 @@ class WebViewAllowFileAccess(categories.ICodeVulnerability):
                 # The target method was not found. Before Android R (API 30), file
                 # access within WebView is enabled by default, so we have to check
                 # if WebView is used.
-                if int(analysis_info.get_apk_analysis().get_target_sdk_version()) < 30:
+                target_sdk = analysis_info.get_apk_analysis().get_target_sdk_version()
+                if (
+                    target_sdk
+                    and int(analysis_info.get_apk_analysis().get_target_sdk_version())
+                    < 30
+                ):
                     class_analysis = dx.get_class_analysis(
                         "Landroid/webkit/WebSettings;"
                     )

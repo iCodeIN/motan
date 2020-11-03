@@ -177,7 +177,7 @@ class RegisterAnalyzer(object):
                             break
 
                     # Check the constructor of the class containing the field, if the
-                    # field is static/final then its value might be initialized here.
+                    # field is static/final then its value might be initialized there.
                     if is_static_or_final_field:
                         for m in clazz.get_methods():
                             method = m.get_method()
@@ -191,6 +191,16 @@ class RegisterAnalyzer(object):
                                     if i.get_output().endswith(
                                         full_field_name
                                     ) and i.get_name().startswith("sput"):
+                                        # The class name of the object calling the
+                                        # field.
+                                        c_name = i.get_operands()[-1][2].split("->")[0]
+
+                                        if method.get_class_name() == c_name:
+                                            # This would generate a recursion error
+                                            # since we are already inside the
+                                            # constructor.
+                                            break
+
                                         # sput-xx instruction writes a value into the
                                         # field.
                                         ra = RegisterAnalyzer(
@@ -299,11 +309,13 @@ class TaintAnalysis(ABC):
         self,
         target_method: Union[MethodAnalysis, Iterable[MethodAnalysis]],
         analysis_info: AndroidAnalysis,
+        path_max_length: int = 3,
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self._target_method = target_method
         self._analysis_info = analysis_info
+        self._max_depth = path_max_length
 
         # The list of methods that contain the vulnerability. The key is the full method
         # signature where the vulnerable code was found, while the value is a tuple with
@@ -450,18 +462,25 @@ class TaintAnalysis(ABC):
             # the destination method only.
             paths = [[method]]
             for node in graph.nodes:
-                paths.extend(nx.all_simple_paths(graph, node, method))
+                for new_path in nx.all_simple_paths(graph, node, method):
+                    # If a positive maximum path length was provided, crop the path to
+                    # the maximum path length, otherwise add the complete path.
+                    if self._max_depth > 0:
+                        paths.append(new_path[-self._max_depth :])
+                    else:
+                        paths.append(new_path)
 
             # Keep only the longest paths (remove all the sub-paths that are part of
             # longer paths).
             longest_paths = []
+            longest_paths_str = []
             for path in sorted(paths, key=len, reverse=True):
                 # Lists are casted to strings before comparison in order to easily use
                 # the in operator to check if a list is a sub-list of another list.
-                if not any(
-                    str(path)[1:-1] in str(elem)[1:-1] for elem in longest_paths
-                ):
+                sub_path = str(path)[1:-1]
+                if not any(sub_path in elem for elem in longest_paths_str):
                     longest_paths.append(path)
+                    longest_paths_str.append(str(path)[1:-1])
 
             return longest_paths
 

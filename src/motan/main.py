@@ -108,13 +108,11 @@ def perform_analysis(
 
     logger.info(f"Analysis duration: {analysis_duration.total_seconds():.1f} seconds")
 
-    vulnerabilities_json = VulnerabilityDetails.Schema().dumps(
-        found_vulnerabilities, many=True
-    )
+    vuln_json = VulnerabilityDetails.Schema().dumps(found_vulnerabilities, many=True)
 
     # TODO: save results into a file?
     if found_vulnerabilities:
         logger.info(
             "Analysis results:\n"
-            f"{json.dumps(json.loads(vulnerabilities_json), indent=2)}"
+            f"{json.dumps(json.loads(vuln_json), indent=2, ensure_ascii=False)}"
         )

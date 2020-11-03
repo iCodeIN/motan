@@ -36,6 +36,7 @@ class PermissionDangerous(categories.IManifestVulnerability):
             ):
                 if (
                     p_details["protectionLevel"]
+                    and p_details["protectionLevel"] != "None"
                     and int(p_details["protectionLevel"], 16) == 0x1
                 ):
                     # 0x1 is dangerous protectionLevel.

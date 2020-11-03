@@ -36,6 +36,7 @@ class PermissionNormal(categories.IManifestVulnerability):
             ):
                 if (
                     p_details["protectionLevel"]
+                    and p_details["protectionLevel"] != "None"
                     and int(p_details["protectionLevel"], 16) == 0x0
                 ) or not p_details["protectionLevel"]:
                     # 0x0 is normal protectionLevel (protectionLevel is also normal by
