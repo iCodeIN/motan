@@ -187,18 +187,19 @@ class RegisterAnalyzer(object):
                             ) and method.get_descriptor() == "()V":
 
                                 off = 0
+                                get_instr_found = False
                                 for i in method.get_instructions():
                                     if i.get_output().endswith(
                                         full_field_name
+                                    ) and i.get_name().startswith("sget"):
+                                        get_instr_found = True
+                                    if i.get_output().endswith(
+                                        full_field_name
                                     ) and i.get_name().startswith("sput"):
-                                        # The class name of the object calling the
-                                        # field.
-                                        c_name = i.get_operands()[-1][2].split("->")[0]
-
-                                        if method.get_class_name() == c_name:
-                                            # This would generate a recursion error
-                                            # since we are already inside the
-                                            # constructor.
+                                        if get_instr_found:
+                                            # A sget-xx instruction was found before
+                                            # this, continuing would generate an
+                                            # infinite recursion.
                                             break
 
                                         # sput-xx instruction writes a value into the
