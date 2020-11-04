@@ -461,29 +461,25 @@ class TaintAnalysis(ABC):
 
             # Find all paths that have method destination. The smallest path is made by
             # the destination method only.
-            paths = [[method]]
+            paths_dict = {str(method): [method]}
             for node in graph.nodes:
                 for new_path in nx.all_simple_paths(graph, node, method):
                     # If a positive maximum path length was provided, crop the path to
                     # the maximum path length, otherwise add the complete path.
                     if self._max_depth > 0:
-                        paths.append(new_path[-self._max_depth :])
+                        path_to_add = new_path[-self._max_depth :]
                     else:
-                        paths.append(new_path)
+                        path_to_add = new_path
+                    paths_dict[str(path_to_add)[1:-1]] = path_to_add
 
             # Keep only the longest paths (remove all the sub-paths that are part of
             # longer paths).
-            longest_paths = []
-            longest_paths_str = []
-            for path in sorted(paths, key=len, reverse=True):
-                # Lists are casted to strings before comparison in order to easily use
-                # the in operator to check if a list is a sub-list of another list.
-                sub_path = str(path)[1:-1]
-                if not any(sub_path in elem for elem in longest_paths_str):
-                    longest_paths.append(path)
-                    longest_paths_str.append(str(path)[1:-1])
+            longest_paths_dict = {}
+            for path in sorted(paths_dict, key=len, reverse=True):
+                if not any(key.endswith(path) for key in longest_paths_dict):
+                    longest_paths_dict[path] = paths_dict[path]
 
-            return longest_paths
+            return list(longest_paths_dict.values())
 
         if not self._target_method:
             return []
