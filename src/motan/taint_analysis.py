@@ -10,7 +10,7 @@ from androguard.core.analysis.analysis import (
     MethodAnalysis,
 )
 from androguard.core.bytecodes.apk import APK
-from androguard.core.bytecodes.dvm import Instruction
+from androguard.core.bytecodes.dvm import Instruction, EncodedMethod
 from androguard.core.bytecodes.dvm_types import Operand
 
 from motan.analysis import AndroidAnalysis
@@ -115,7 +115,7 @@ class RegisterAnalyzer(object):
                         self._register_values[
                             register_number
                         ] = res.get_resolved_res_configs(string_id)[0][1]
-                    except IndexError:
+                    except Exception:
                         pass
 
                 elif last_instr[0] == 0x6E and (
@@ -310,7 +310,7 @@ class TaintAnalysis(ABC):
         self,
         target_method: Union[MethodAnalysis, Iterable[MethodAnalysis]],
         analysis_info: AndroidAnalysis,
-        path_max_length: int = 3,
+        path_max_length: int = 5,
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
 
@@ -376,6 +376,7 @@ class TaintAnalysis(ABC):
                 register_analyzer.initialize_register_value(param[0], val)
 
         offset = 0
+        next_invocation_found = False
         for ins in caller.get_method().get_instructions():
             self.logger.debug(
                 f"(0x{offset:04x}) {ins.get_name():20} {ins.get_output()}"
@@ -384,6 +385,8 @@ class TaintAnalysis(ABC):
             if ins.get_output().endswith(
                 f"{target.class_name}->{target.name}{target.descriptor}"
             ):
+                next_invocation_found = True
+
                 # The current instruction is an invocation to the next method in path.
                 if path[-1] == target:
                     self.logger.debug(
@@ -429,6 +432,26 @@ class TaintAnalysis(ABC):
 
             offset += ins.get_length()
 
+        if not next_invocation_found:
+            # The next method it's not called directly from code. This method could be
+            # inside an inner/anonymous class (e.g., onClick listener).
+            # The current instruction is an invocation to the next method in path.
+            self.logger.debug(
+                "This is the next method to follow: "
+                f"{target.class_name}->{target.name}{target.descriptor}"
+            )
+
+            # Continue analyzing the next method.
+            self._recursive_check_path(path, path_start_index + 1, [])
+
+            # The last method in path is the target method, so if the current target
+            # method is the last one, it means we are checking the invocation of the
+            # actual (potentially vulnerable) target method.
+            if path[-1] == target:
+                self.vulnerable_path_found_callback(
+                    path, caller, target, last_invocation_params
+                )
+
     def get_paths_to_target_method(self) -> List[List[MethodAnalysis]]:
         """
         Get a list with all the (longest) paths leading to a target method.
@@ -447,9 +470,36 @@ class TaintAnalysis(ABC):
 
             # Add to the graph all the callers of the current method and repeat the same
             # operation for each caller.
-            for _, caller, offset in method.get_xref_from():
+            num_callers = 0
+            for _, caller, _ in method.get_xref_from():
+                num_callers += 1
                 recursive_graph(graph, caller)
-                graph.add_edge(caller, method, key=offset)
+                graph.add_edge(caller, method)
+
+            if not num_callers:
+                # The current method has no xref, so it's not called directly from code.
+                # However, the class containing this method could be an inner/anonymous
+                # class used to define a method that is not called directly (e.g.,
+                # onClick listener).
+                class_analysis = (
+                    self._analysis_info.get_dex_analysis().get_class_analysis(
+                        method.get_class_name()
+                    )
+                )
+                # The class containing the method was not found.
+                if not class_analysis:
+                    return
+                for caller in class_analysis.get_xref_from():
+                    for meth in caller.get_methods():
+                        e_meth = meth.get_method()
+                        if isinstance(e_meth, EncodedMethod):
+                            for i in e_meth.get_instructions():
+                                if i.get_op_value() == 0x22:  # 0x22 = "new-instance"
+                                    if i.get_string() == method.get_class_name():
+                                        if meth not in graph.nodes:
+                                            graph.add_node(meth)
+                                            graph.add_edge(meth, method)
+                                            break
 
         def get_paths(method: MethodAnalysis) -> List[List[MethodAnalysis]]:
             if not method:
