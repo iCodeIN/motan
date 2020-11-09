@@ -80,6 +80,8 @@ class IOSAnalysis(BaseAnalysis):
         self.ipa_path: str = ipa_path
         self.language: str = language
 
+        # Todo implement unpacking
+        self.bin_path: str = "..."
         # The list of vulnerabilities already checked for this application.
         self.checked_vulnerabilities: List[str] = []
 
