@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import json
 import logging
 import os
 from datetime import datetime
 from typing import List
+
+from pebble import ProcessPool
 
 from motan import util
 from motan.analysis import AndroidAnalysis, IOSAnalysis
@@ -27,21 +28,21 @@ logging.getLogger("yapsy").level = logging.ERROR
 logging.getLogger("androguard").level = logging.ERROR
 
 
-def perform_analysis(
+def perform_analysis_without_timeout(
     input_app_path: str,
     language: str,
     ignore_libs: bool = False,
     fail_fast: bool = False,
-):
+) -> List[VulnerabilityDetails]:
+    # Needed for calculating the analysis duration.
+    analysis_start = datetime.now()
+
     # Make sure the file to analyze is a valid file.
     if not os.path.isfile(input_app_path):
         logger.critical(f"Unable to find mobile application file '{input_app_path}'")
         raise FileNotFoundError(
             f"Unable to find mobile application file '{input_app_path}'"
         )
-
-    # Needed for calculating the analysis duration.
-    analysis_start = datetime.now()
 
     # Verify if this is an Android or iOS application, then start the corresponding
     # vulnerability analysis.
@@ -108,11 +109,24 @@ def perform_analysis(
 
     logger.info(f"Analysis duration: {analysis_duration.total_seconds():.1f} seconds")
 
-    vuln_json = VulnerabilityDetails.Schema().dumps(found_vulnerabilities, many=True)
+    return found_vulnerabilities
 
-    # TODO: save results into a file?
-    if found_vulnerabilities:
-        logger.info(
-            "Analysis results:\n"
-            f"{json.dumps(json.loads(vuln_json), indent=2, ensure_ascii=False)}"
-        )
+
+def perform_analysis_with_timeout(
+    input_app_path: str,
+    language: str,
+    ignore_libs: bool = False,
+    fail_fast: bool = False,
+    timeout: int = None,
+) -> List[VulnerabilityDetails]:
+    with ProcessPool(1) as pool:
+        return pool.schedule(
+            perform_analysis_without_timeout,
+            args=[
+                input_app_path,
+                language,
+                ignore_libs,
+                fail_fast,
+            ],
+            timeout=timeout,
+        ).result()
