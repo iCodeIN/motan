@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
+import logging
 from typing import List
 
-from motan.main import perform_analysis
+from motan.main import perform_analysis_with_timeout
+from motan.vulnerability import VulnerabilityDetails
+
+logger = logging.getLogger(__name__)
 
 
 def get_cmd_args(args: List[str] = None):
@@ -46,6 +51,15 @@ def get_cmd_args(args: List[str] = None):
         action="store_true",
         help="Make the entire analysis fail on the first failed vulnerability check",
     )
+    parser.add_argument(
+        "-t",
+        "--timeout",
+        type=int,
+        metavar="TIMEOUT",
+        default=1200,
+        help="Make the analysis fail if it takes longer than timeout (in seconds) "
+        "to complete. By default a timeout of 1200 seconds (20 minutes) is used",
+    )
     return parser.parse_args(args)
 
 
@@ -58,11 +72,20 @@ def main():
     if arguments.language:
         arguments.language = arguments.language.strip(" '\"")
 
-    perform_analysis(
+    found_vulnerabilities = perform_analysis_with_timeout(
         arguments.app_file,
         arguments.language,
         arguments.ignore_libs,
         arguments.fail_fast,
+        arguments.timeout,
+    )
+
+    vuln_json = VulnerabilityDetails.Schema().dumps(found_vulnerabilities, many=True)
+
+    # TODO: save results into a file?
+    logger.info(
+        "Analysis results:\n"
+        f"{json.dumps(json.loads(vuln_json), indent=2, ensure_ascii=False)}"
     )
 
 
