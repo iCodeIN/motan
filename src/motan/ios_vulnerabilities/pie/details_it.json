@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "PIE Vulnerability",
+  "description": "fPIE -pie flag is not Found, with Position Independent Executable (PIE) flag. So Address Space Layout Randomization (ASLR) is missing. ASLR is a memory protection mechanism for exploit mitigation.'",
   "remediation": "",
   "references": {
     "text": "",

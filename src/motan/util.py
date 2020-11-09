@@ -6,6 +6,8 @@ import plistlib
 import re
 import zipfile
 from typing import Iterable, List
+import shutil
+import subprocess
 
 from androguard.core.bytecodes.apk import APK
 from androguard.core.bytecodes.dvm import ClassDefItem
@@ -63,3 +65,107 @@ def is_class_implementing_interfaces(clazz: ClassDefItem, interfaces: Iterable[s
     Check if a class is implementing a specific list of interfaces.
     """
     return all(interface in clazz.get_interfaces() for interface in interfaces)
+
+
+def get_list_cpu_type(name_binary):
+    """
+        Get CPU types of Fat-Binary
+    """
+    command_check_architecture = ["otool", "-hv", name_binary]
+    process_command_check_arch = subprocess.Popen(command_check_architecture, stdout=subprocess.PIPE)
+    out, err = process_command_check_arch.communicate()
+    out_string = out.decode("utf-8")
+    lines = out_string.split("Mach header")
+    list_architecture = []
+    for line in lines:
+        if len(line) == 2:
+            line = line[1]
+        values = line.strip().split("\n")
+        if len(values) == 2:
+            dict_key_value = dict()
+            values[0] = values[0].strip().split(" ")
+            values[0] = [x for x in values[0] if x != ""]
+            values[1] = values[1].strip().split(" ")
+            values[1] = [x for x in values[1] if x != ""]
+            for index_key in range(0, len(values[0])):
+                if values[0][index_key] != "flags":
+                    dict_key_value[values[0][index_key]] = values[1][index_key]
+                else:
+                    dict_key_value[values[0][index_key]] = values[1][index_key:]
+            list_architecture.append(dict_key_value)
+    list_cpu_type = list()
+    list_subtype_cpu = list()
+    for x in list_architecture:
+        list_cpu_type.append(x["cputype"].lower())
+        list_subtype_cpu.append(x["cpusubtype"].lower())
+    return list_cpu_type, list_subtype_cpu
+
+
+def unpacking_ios_app(ipa_path: str, output_dir_bin:str):
+    """
+        Unpacking IPA file
+    """
+    FNULL = open(os.devnull, 'w')
+    logger.debug(f"Unpacking f{ipa_path}")
+    if not os.path.isdir(output_dir_bin):
+        os.mkdir(output_dir_bin)
+    
+    file_ipa_no_ext = ipa_path.rsplit(".", 1)[0]
+    dir_ipa = file_ipa_no_ext.rsplit(os.sep, 1)[0]
+    only_name = file_ipa_no_ext.rsplit(os.sep, 1)[-1]
+    zip_file = "{}.zip".format(file_ipa_no_ext)
+
+
+    shutil.copy2(ipa_path, zip_file)
+    logger.debug("Extract all zip content")
+    command_zip = ["unzip","-q", "-o", zip_file, "-d", os.path.join(dir_ipa, only_name)]
+    
+    subprocess.call(command_zip)
+    
+    logger.debug("Unpacking iOS app")
+    list_ff_files = list()
+    for (dirpath, dirnames, filenames) in os.walk(os.path.join(dir_ipa, only_name)):
+        list_ff_files += [os.path.join(dirpath, file) for file in filenames]
+    
+    name_binary = ""
+    for file_inside in list_ff_files:
+        file_split = file_inside.split(os.sep)
+        if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and   \
+            file_split[-1] == file_split[-2].split(".app")[0] and \
+                file_split[-2].endswith(".app"):
+            # Identify binary file
+            name_binary = "{}_binary".format(file_split[-1])
+            shutil.copy2(file_inside, name_binary)
+
+    try:
+        if name_binary != "":
+            list_cpu_type, list_subtype_cpu = get_list_cpu_type(name_binary)
+
+            # identify cpu type
+            if len(list_cpu_type) == 1 and "all" in list_subtype_cpu:
+                cpu_choose = list_cpu_type[0]
+            elif "arm64" in list_cpu_type:
+                cpu_choose = "arm64"
+            elif len(list_cpu_type) == 1 and "all" not in list_cpu_type:
+                cpu_choose = "{0}{1}".format(list_cpu_type[0], list_subtype_cpu[0])
+            
+            logger.debug("Convert binary to only {}".format(cpu_choose))
+
+            # get name binary and execute lipo command
+            binary_64_name = "{0}_{1}".format(name_binary, cpu_choose)
+            command_conversion = ["lipo", "-thin", cpu_choose, name_binary, "-output", binary_64_name]
+            subprocess.call(command_conversion, stdout=subprocess.DEVNULL)
+            # move binary to specific path
+            shutil.move(binary_64_name, os.path.join(output_dir_bin, binary_64_name))
+            os.remove(name_binary)
+            return os.path.join(output_dir_bin, binary_64_name)
+        else:
+            logger.error("Not found binary")
+            return None
+    except Exception as e:
+        logger.error(e)
+    
+
+def delete_support_files_ipa():
+    # TODO remove all files created during IPA analysis
+    return
