@@ -5,7 +5,7 @@
   "references": {
     "text": "Further Information [[1]]",
     "links": {
-      "1": ""
+      "1": "https://www.hackingwithswift.com/example-code/language/what-is-automatic-reference-counting-arc"
     }
   }
 }

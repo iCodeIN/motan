@@ -1,11 +1,12 @@
 {
-  "name": "StackCanary",
-  "description": "This binary does not have a stack canary value added to the stack. Stack canraies are used to detect and prevent exploits from overwriting return address. ",
-  "remediation": "Use the option -fstack-protector-all to enable stack canaries.",
+  "name": "StackCanary Vulnerability",
+  "description": "Questo binario non ha un valore canary stack aggiunto allo stack. I canarini stack vengono utilizzati per rilevare e impedire agli exploit di sovrascrivere l'indirizzo di ritorno.",
+  "remediation": "Utilizzare l'opzione -fstack-protector-all per abilitare stack canaries.",
   "references": {
-    "text": "Further Information [[1]]",
+    "text": "Maggiori Informazioni [[1]] [[2]]",
     "links": {
-      "1": "https://discussions.apple.com/thread/250723905"
+      "1": "https://link.springer.com/article/10.1007/s10207-018-00425-8",
+      "2": "https://github.com/nowsecure/secure-mobile-development/blob/master/en/ios/implement-protections-against-buffer-overflow-attacks.md"
     }
   }
 }

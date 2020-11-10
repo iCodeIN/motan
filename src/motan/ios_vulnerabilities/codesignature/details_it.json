@@ -1,11 +1,11 @@
 {
   "name": "Code Signature",
-  "description": "This binary does not have a code signature.",
+  "description": "Questo binario non ha una firma del codice.",
   "remediation": "",
   "references": {
-    "text": "Further Information [[1]]",
+    "text": "Maggiori Informazioni [[1]]",
     "links": {
-      "1": ""
+      "1": "https://developer.apple.com/documentation/xcode/using_the_latest_code_signature_format"
     }
   }
 }

@@ -5,12 +5,12 @@
   "cvss": {
     "attack_vector": "Local",
     "attack_complexity": "High",
-    "privileges_required": "Low",
+    "privileges_required": "None",
     "user_interaction": "None",
     "scope": "Unchanged",
     "confidentiality_impact": "High",
-    "integrity_impact": "Low",
-    "availability_impact": "Low"
+    "integrity_impact": "High",
+    "availability_impact": "High"
   }
 }
 
