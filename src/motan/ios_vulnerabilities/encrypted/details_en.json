@@ -1,0 +1,11 @@
+{
+  "name": "Encryption",
+  "description": "This binary is not encrypted.",
+  "remediation": "",
+  "references": {
+    "text": "Further Information [[1]]",
+    "links": {
+      "1": ""
+    }
+  }
+}

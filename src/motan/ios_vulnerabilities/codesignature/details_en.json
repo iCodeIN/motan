@@ -1,0 +1,11 @@
+{
+  "name": "Code Signature",
+  "description": "This binary does not have a code signature.",
+  "remediation": "",
+  "references": {
+    "text": "Further Information [[1]]",
+    "links": {
+      "1": ""
+    }
+  }
+}

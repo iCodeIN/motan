@@ -1,0 +1,11 @@
+{
+  "name": "Symbols Stripped",
+  "description": "Symbols are available. To strip debugging symbols, set Strip Debug Symbols During Copy to YES via the project\\'s build settings.'",
+  "remediation": "",
+  "references": {
+    "text": "Further Information [[1]]",
+    "links": {
+      "1": "https://discussions.apple.com/thread/250723905"
+    }
+  }
+}

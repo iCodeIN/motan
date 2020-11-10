@@ -1,0 +1,11 @@
+{
+  "name": "Restricted Segment",
+  "description": "This binary does not have restricted segment that prevents dynamic loading of dylib for arbitrary code injection.",
+  "remediation": "Use compiler options -Wl,-sectcreate, __RESTRICT,__restrict,/dev/null to enable restricted segment.",
+  "references": {
+    "text": "Further Information [[1]]",
+    "links": {
+      "1": ""
+    }
+  }
+}
