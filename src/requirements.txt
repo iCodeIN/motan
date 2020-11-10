@@ -6,3 +6,4 @@ Yapsy==1.12.2
 biplist==1.0.3
 Django==2.2.6
 macholib==1.11
+lief==0.10.1

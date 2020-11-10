@@ -1,11 +1,12 @@
 {
   "name": "PIE Vulnerability",
-  "description": "fPIE -pie flag is not Found, with Position Independent Executable (PIE) flag. So Address Space Layout Randomization (ASLR) is missing. ASLR is a memory protection mechanism for exploit mitigation.'",
-  "remediation": "",
+  "description": "The binary is built without Position Independent Code flag. In order to prevent an attacker from reliably jumping to, for example, a particular exploited function in memory, Address space layout randomization (ASLR) randomly arranges the address space positions of key data areas of a process, including the base of the executable and the positions of the stack,heap and libraries.",
+  "remediation": "Use compiler option -fPIC to enable Position Independent Code.",
   "references": {
-    "text": "",
+    "text": "Further Information about PIE vulnerability [[1]] [[2]]",
     "links": {
-      "1": ""
+      "1": "https://www.usenix.org/system/files/login/articles/105516-Schwartz.pdf",
+      "2": "https://github.com/OWASP/owasp-mstg/blob/master/Document/0x06i-Testing-Code-Quality-and-Build-Settings.md"
     }
   }
 }

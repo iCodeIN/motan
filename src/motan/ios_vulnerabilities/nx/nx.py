@@ -12,7 +12,7 @@ import lief
 
 
 
-class PieVulnerability(categories.ICodeVulnerability):
+class NXVulnerability(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -30,7 +30,7 @@ class PieVulnerability(categories.ICodeVulnerability):
             )
             details.id = self.__class__.__name__
             
-            if macho_object.is_pie:
+            if macho_object.has_nx:
                 vulnerability_found = False
                 return None
             else:

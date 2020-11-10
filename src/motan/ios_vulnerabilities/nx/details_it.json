@@ -1,0 +1,11 @@
+{
+  "name": "Never eXecute Vulnerability",
+  "description": "Il binario non ha il bit NX impostato. NX bit offre protezione contro lo sfruttamento delle vulnerabilità di danneggiamento della memoria contrassegnando la pagina di memoria come non eseguibile. Tuttavia iOS non consente mai a un'app di eseguire dalla memoria scrivibile. Non è necessario abilitare in modo specifico il `bit NX` perché è sempre abilitato per tutto il codice di terze parti.",
+  "remediation": "",
+  "references": {
+    "text": "Maggiori Informazioni [[1]]",
+    "links": {
+      "1": "https://discussions.apple.com/thread/250723905"
+    }
+  }
+}
