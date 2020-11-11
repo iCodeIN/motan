@@ -79,10 +79,13 @@ class IOSAnalysis(BaseAnalysis):
 
         self.ipa_path: str = ipa_path
         self.language: str = language
-
-        # dir_binary_extraction = os.path.join(working_dir, self.ipa_path.rsplit(".", 1)[0] + "_binary")
-        dir_binary_extraction = self.ipa_path.rsplit(".", 1)[0] + "_binary"
-        self.bin_path = util.unpacking_ios_app(ipa_path, dir_binary_extraction)
+        self.only_name = self.ipa_path.rsplit(".", 1)[0].rsplit(os.sep, 1)[1]
+        self.working_dir = working_dir
+        self.dir_binary_extraction = os.path.join(os.getcwd(), self.working_dir, self.only_name + "_binary")
+        # dir_binary_extraction = self.ipa_path.rsplit(".", 1)[0] + "_binary"
+        self.bin_path = util.unpacking_ios_app(ipa_path,
+                                               self.dir_binary_extraction,
+                                               working_dir=os.path.join(os.getcwd(), self.working_dir))
         # The list of vulnerabilities already checked for this application.
         self.checked_vulnerabilities: List[str] = []
 

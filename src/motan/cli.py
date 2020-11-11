@@ -60,6 +60,11 @@ def get_cmd_args(args: List[str] = None):
         help="Make the analysis fail if it takes longer than timeout (in seconds) "
         "to complete. By default a timeout of 1200 seconds (20 minutes) is used",
     )
+    parser.add_argument(
+        "--keepfile",
+        action="store_true",
+        help="Flag to keep intermediate files generated during the analysis"
+    )
     return parser.parse_args(args)
 
 
@@ -71,13 +76,13 @@ def main():
 
     if arguments.language:
         arguments.language = arguments.language.strip(" '\"")
-
     found_vulnerabilities = perform_analysis_with_timeout(
         arguments.app_file,
         arguments.language,
         arguments.ignore_libs,
         arguments.fail_fast,
         arguments.timeout,
+        arguments.keepfile
     )
 
     vuln_json = VulnerabilityDetails.Schema().dumps(found_vulnerabilities, many=True)

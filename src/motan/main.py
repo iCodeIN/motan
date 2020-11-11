@@ -33,6 +33,7 @@ def perform_analysis_without_timeout(
     language: str,
     ignore_libs: bool = False,
     fail_fast: bool = False,
+    keep_file: bool = False
 ) -> List[VulnerabilityDetails]:
     # Needed for calculating the analysis duration.
     analysis_start = datetime.now()
@@ -106,10 +107,10 @@ def perform_analysis_without_timeout(
         )
     else:
         logger.info("0 vulnerabilities found")
-
-    if platform == "iOS":
-        # TODO implement deleting dir
+    print(type(keep_file), keep_file)
+    if platform == "iOS" and not keep_file:
         logger.info("Deleting all dir")
+        util.delete_support_files_ipa(analysis.working_dir)
 
     logger.info(f"Analysis duration: {analysis_duration.total_seconds():.1f} seconds")
 
@@ -122,6 +123,7 @@ def perform_analysis_with_timeout(
     ignore_libs: bool = False,
     fail_fast: bool = False,
     timeout: int = None,
+    keep_file:bool = False
 ) -> List[VulnerabilityDetails]:
     with ProcessPool(1) as pool:
         return pool.schedule(
@@ -131,6 +133,7 @@ def perform_analysis_with_timeout(
                 language,
                 ignore_libs,
                 fail_fast,
+                keep_file,
             ],
             timeout=timeout,
         ).result()

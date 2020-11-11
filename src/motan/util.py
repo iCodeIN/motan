@@ -8,6 +8,7 @@ import zipfile
 from typing import Iterable, List
 import shutil
 import subprocess
+import glob
 
 from androguard.core.bytecodes.apk import APK
 from androguard.core.bytecodes.dvm import ClassDefItem
@@ -101,43 +102,47 @@ def get_list_cpu_type(name_binary):
     return list_cpu_type, list_subtype_cpu
 
 
-def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str = "working_dir_motan_ios"):
+def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
     """
         Unpacking IPA file
     """
     logger.debug(f"Unpacking f{ipa_path}")
 
+    # create dirs in order to work
     os.makedirs(output_dir_bin, exist_ok=True)
-    
+
+    # get some information about dir
     file_ipa_no_ext = ipa_path.rsplit(".", 1)[0]
-    dir_ipa = file_ipa_no_ext.rsplit(os.sep, 1)[0]
+    dir_contains_ipa = file_ipa_no_ext.rsplit(os.sep, 1)[0]
     only_name = file_ipa_no_ext.rsplit(os.sep, 1)[-1]
-    zip_file = "{}.zip".format(file_ipa_no_ext)
+    zip_file = os.path.join(working_dir, "{}.zip".format(only_name))
+    output_dir_zip = os.path.join(working_dir, only_name)
 
     shutil.copy2(ipa_path, zip_file)
     logger.debug("Extract all zip content")
-    command_zip = ["unzip", "-q", "-o", zip_file, "-d", os.path.join(dir_ipa, only_name)]
+    command_zip = ["unzip", "-q", "-o", zip_file, "-d", output_dir_zip]
     
     subprocess.call(command_zip)
     
     logger.debug("Unpacking iOS app")
     list_ff_files = list()
-    for (dirpath, dirnames, filenames) in os.walk(os.path.join(dir_ipa, only_name)):
+    for (dirpath, dirnames, filenames) in os.walk(output_dir_zip):
         list_ff_files += [os.path.join(dirpath, file) for file in filenames]
     
     name_binary = ""
     for file_inside in list_ff_files:
         file_split = file_inside.split(os.sep)
-        if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and   \
+        if len(file_split) - len(output_dir_zip.split(os.sep)) == 3 and   \
                 file_split[-1] == file_split[-2].split(".app")[0] and \
                 file_split[-2].endswith(".app"):
             # Identify binary file
             name_binary = "{}_binary".format(file_split[-1])
             shutil.copy2(file_inside, name_binary)
-
     try:
         if name_binary != "":
+
             list_cpu_type, list_subtype_cpu = get_list_cpu_type(name_binary)
+
             # identify cpu type
             if len(list_cpu_type) == 1 and "all" in list_subtype_cpu:
                 cpu_choose = list_cpu_type[0]
@@ -155,6 +160,7 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str = "wo
 
             # move binary to specific path
             path_bin = os.path.join(output_dir_bin, binary_64_name)
+
             shutil.move(binary_64_name, path_bin)
             os.remove(name_binary)
             return path_bin
@@ -165,6 +171,10 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str = "wo
         logger.error(e)
     
 
-def delete_support_files_ipa():
-    # TODO remove all files created during IPA analysis
-    return
+def delete_support_files_ipa(working_dir_to_delete: str):
+    file_list = glob.glob(os.path.join(working_dir_to_delete, "*"))
+    for file_to_delete in file_list:
+        if os.path.isfile(file_to_delete):
+            os.remove(file_to_delete)
+        else:
+            shutil.rmtree(file_to_delete)
