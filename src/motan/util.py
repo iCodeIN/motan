@@ -101,12 +101,12 @@ def get_list_cpu_type(name_binary):
     return list_cpu_type, list_subtype_cpu
 
 
-def unpacking_ios_app(ipa_path: str, output_dir_bin:str):
+def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str = "working_dir_motan_ios"):
     """
         Unpacking IPA file
     """
-    FNULL = open(os.devnull, 'w')
     logger.debug(f"Unpacking f{ipa_path}")
+
     if not os.path.isdir(output_dir_bin):
         os.mkdir(output_dir_bin)
     
@@ -115,10 +115,9 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin:str):
     only_name = file_ipa_no_ext.rsplit(os.sep, 1)[-1]
     zip_file = "{}.zip".format(file_ipa_no_ext)
 
-
     shutil.copy2(ipa_path, zip_file)
     logger.debug("Extract all zip content")
-    command_zip = ["unzip","-q", "-o", zip_file, "-d", os.path.join(dir_ipa, only_name)]
+    command_zip = ["unzip", "-q", "-o", zip_file, "-d", os.path.join(dir_ipa, only_name)]
     
     subprocess.call(command_zip)
     
@@ -131,7 +130,7 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin:str):
     for file_inside in list_ff_files:
         file_split = file_inside.split(os.sep)
         if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and   \
-            file_split[-1] == file_split[-2].split(".app")[0] and \
+                file_split[-1] == file_split[-2].split(".app")[0] and \
                 file_split[-2].endswith(".app"):
             # Identify binary file
             name_binary = "{}_binary".format(file_split[-1])
@@ -140,7 +139,6 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin:str):
     try:
         if name_binary != "":
             list_cpu_type, list_subtype_cpu = get_list_cpu_type(name_binary)
-
             # identify cpu type
             if len(list_cpu_type) == 1 and "all" in list_subtype_cpu:
                 cpu_choose = list_cpu_type[0]
@@ -149,16 +147,18 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin:str):
             elif len(list_cpu_type) == 1 and "all" not in list_cpu_type:
                 cpu_choose = "{0}{1}".format(list_cpu_type[0], list_subtype_cpu[0])
             
-            logger.debug("Convert binary to only {}".format(cpu_choose))
+            logger.debug("Convert binary to specific architecture {}".format(cpu_choose))
 
             # get name binary and execute lipo command
             binary_64_name = "{0}_{1}".format(name_binary, cpu_choose)
             command_conversion = ["lipo", "-thin", cpu_choose, name_binary, "-output", binary_64_name]
             subprocess.call(command_conversion, stdout=subprocess.DEVNULL)
+
             # move binary to specific path
-            shutil.move(binary_64_name, os.path.join(output_dir_bin, binary_64_name))
+            path_bin = os.path.join(output_dir_bin, binary_64_name)
+            shutil.move(binary_64_name, path_bin)
             os.remove(name_binary)
-            return os.path.join(output_dir_bin, binary_64_name)
+            return path_bin
         else:
             logger.error("Not found binary")
             return None

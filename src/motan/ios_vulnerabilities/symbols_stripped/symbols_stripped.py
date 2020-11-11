@@ -30,9 +30,9 @@ class SymbolsStrippedVulnerability(categories.ICodeVulnerability):
             )
             details.id = self.__class__.__name__
             vulnerability_found = True
-            for i in self.macho.symbols:
+            for i in macho_object.symbols:
                 if i:
-                    vulnerability_found =  False
+                    vulnerability_found = False
                     break
             if vulnerability_found:
                 return details

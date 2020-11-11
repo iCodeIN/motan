@@ -80,7 +80,6 @@ class IOSAnalysis(BaseAnalysis):
         self.ipa_path: str = ipa_path
         self.language: str = language
 
-        # Todo implement unpacking
         dir_binary_extraction = self.ipa_path.rsplit(".", 1)[0] + "_binary"
 
         self.bin_path = util.unpacking_ios_app(ipa_path, dir_binary_extraction)
@@ -88,4 +87,4 @@ class IOSAnalysis(BaseAnalysis):
         self.checked_vulnerabilities: List[str] = []
 
         self.logger.info(f"Analyzing iOS application '{ipa_path}'")
-        
+

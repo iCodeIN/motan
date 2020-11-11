@@ -33,7 +33,7 @@ class RPathVulnerability(categories.ICodeVulnerability):
                 vunerability_found = False
                 return None
             else:
-                vunerability_found = False
+                vunerability_found = True
                 return details
         
         except Exception as e:

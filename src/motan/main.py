@@ -107,6 +107,10 @@ def perform_analysis_without_timeout(
     else:
         logger.info("0 vulnerabilities found")
 
+    if platform == "iOS":
+        # TODO implement deleting dir
+        logger.info("Deleting all dir")
+
     logger.info(f"Analysis duration: {analysis_duration.total_seconds():.1f} seconds")
 
     return found_vulnerabilities
