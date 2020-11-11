@@ -74,14 +74,14 @@ class AndroidAnalysis(BaseAnalysis):
 
 
 class IOSAnalysis(BaseAnalysis):
-    def __init__(self, ipa_path: str, language: str = "en"):
+    def __init__(self, ipa_path: str, language: str = "en", working_dir: str = "working_dir_motan_ios"):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
         self.ipa_path: str = ipa_path
         self.language: str = language
 
+        # dir_binary_extraction = os.path.join(working_dir, self.ipa_path.rsplit(".", 1)[0] + "_binary")
         dir_binary_extraction = self.ipa_path.rsplit(".", 1)[0] + "_binary"
-
         self.bin_path = util.unpacking_ios_app(ipa_path, dir_binary_extraction)
         # The list of vulnerabilities already checked for this application.
         self.checked_vulnerabilities: List[str] = []

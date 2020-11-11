@@ -107,8 +107,7 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str = "wo
     """
     logger.debug(f"Unpacking f{ipa_path}")
 
-    if not os.path.isdir(output_dir_bin):
-        os.mkdir(output_dir_bin)
+    os.makedirs(output_dir_bin, exist_ok=True)
     
     file_ipa_no_ext = ipa_path.rsplit(".", 1)[0]
     dir_ipa = file_ipa_no_ext.rsplit(os.sep, 1)[0]
