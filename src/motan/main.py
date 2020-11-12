@@ -107,9 +107,9 @@ def perform_analysis_without_timeout(
         )
     else:
         logger.info("0 vulnerabilities found")
-    print(type(keep_file), keep_file)
+
     if platform == "iOS" and not keep_file:
-        logger.info("Deleting all dir")
+        logger.info("Deleting all dir and intermediate files")
         util.delete_support_files_ipa(analysis.working_dir)
 
     logger.info(f"Analysis duration: {analysis_duration.total_seconds():.1f} seconds")

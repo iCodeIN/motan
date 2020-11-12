@@ -132,8 +132,8 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
     name_binary = ""
     for file_inside in list_ff_files:
         file_split = file_inside.split(os.sep)
-        if len(file_split) - len(output_dir_zip.split(os.sep)) == 3 and   \
-                file_split[-1] == file_split[-2].split(".app")[0] and \
+        # len(file_split) - len(output_dir_zip.split(os.sep)) == 3 and   \
+        if file_split[-1] == file_split[-2].split(".app")[0] and \
                 file_split[-2].endswith(".app"):
             # Identify binary file
             name_binary = "{}_binary".format(file_split[-1])
@@ -153,7 +153,7 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
             
             logger.debug("Convert binary to specific architecture {}".format(cpu_choose))
 
-            # get name binary and execute lipo command
+            # get name binary and execute lipo command to extract only 64bit
             binary_64_name = "{0}_{1}".format(name_binary, cpu_choose)
             command_conversion = ["lipo", "-thin", cpu_choose, name_binary, "-output", binary_64_name]
             subprocess.call(command_conversion, stdout=subprocess.DEVNULL)
