@@ -29,9 +29,11 @@ class BannedAPI(categories.ICodeVulnerability):
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
+
             # TODO to complete
             vulnerability_found = False
             symbols = "\n".join([x.name for x in macho_object.symbols])
+
             # add configuration file where the plugin read the name of API
             banned = re.findall(
                 '_alloca|_gets|_memcpy|_printf|_scanf|'
@@ -43,8 +45,10 @@ class BannedAPI(categories.ICodeVulnerability):
                 '_wcslen|_wcsncat|_wcsncpy|_wcstok|_wmemcpy|'
                 '_fopen|_chmod|_chown|_stat|_mktemp', symbols)
             banned_api = list(set(banned))
+
             if len(banned_api) > 0:
                 vulnerability_found = True
+                details.code.extend(", ".join(banned_api))
 
             if vulnerability_found:
                 return details
