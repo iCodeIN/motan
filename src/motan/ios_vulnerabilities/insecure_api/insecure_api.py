@@ -21,7 +21,7 @@ class InsecureAPI(categories.ICodeVulnerability):
         self, analysis_info: IOSAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
-        
+
         try:
             bin_path = Path(analysis_info.bin_path)
             macho_object = lief.parse(bin_path.as_posix())
@@ -35,14 +35,16 @@ class InsecureAPI(categories.ICodeVulnerability):
 
             # TODO add configuration file where the plugin read the name of API
             banned = re.findall(
-                '_alloca|_gets|_memcpy|_printf|_scanf|'
-                '_sprintf|_sscanf|_strcat|'
-                'StrCat|_strcpy|StrCpy|_strlen|StrLen|'
-                '_strncat|StrNCat|_strncpy|'
-                'StrNCpy|_strtok|_swprintf|_vsnprintf|'
-                '_vsprintf|_vswprintf|_wcscat|_wcscpy|'
-                '_wcslen|_wcsncat|_wcsncpy|_wcstok|_wmemcpy|'
-                '_fopen|_chmod|_chown|_stat|_mktemp', symbols)
+                "_alloca|_gets|_memcpy|_printf|_scanf|"
+                "_sprintf|_sscanf|_strcat|"
+                "StrCat|_strcpy|StrCpy|_strlen|StrLen|"
+                "_strncat|StrNCat|_strncpy|"
+                "StrNCpy|_strtok|_swprintf|_vsnprintf|"
+                "_vsprintf|_vswprintf|_wcscat|_wcscpy|"
+                "_wcslen|_wcsncat|_wcsncpy|_wcstok|_wmemcpy|"
+                "_fopen|_chmod|_chown|_stat|_mktemp",
+                symbols,
+            )
             banned_api = list(set(banned))
 
             if len(banned_api) > 0:
@@ -59,6 +61,6 @@ class InsecureAPI(categories.ICodeVulnerability):
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"
             )
             raise
-        
+
         finally:
             analysis_info.checked_vulnerabilities.append(self.__class__.__name__)

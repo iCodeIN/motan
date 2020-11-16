@@ -11,8 +11,8 @@ from biplist import readPlist, writePlistToString, writePlist
 
 def unpacking(file_ipa, dir_binary):
     decompiler_info = {
-        'info_plist': None,
-        'decomplied_zip': None,
+        "info_plist": None,
+        "decomplied_zip": None,
     }
 
     logger.info("[*] Unpacking {}".format(file_ipa))
@@ -58,37 +58,47 @@ def unpacking(file_ipa, dir_binary):
         #    file_temp = file_inside
         file_split = file_inside.split(os.sep)
         # logger.info(file_split[-1])
-        if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and file_split[-1].endswith(".plist"):
+        if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and file_split[
+            -1
+        ].endswith(".plist"):
             # IDENTIFY PLIST FILES
             # logger.info(file_split[-1])
             name_plist = file_split[-1]
             readable_plist = readPlist(file_inside)
-            print(readable_plist, file=open(os.path.join(dir_plist, name_plist), 'w'))
+            print(readable_plist, file=open(os.path.join(dir_plist, name_plist), "w"))
             # writePlist(readable_plist,os.path.join(dir_plist,name_plist),binary=(xml is False))
             # logger.info(readable_plist)
             # shutil.copyfileobj(readable_plist, name_plist)
             # shutil.move(name_plist,os.path.join(dir_plist,name_plist))
-        if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and file_split[-1].endswith(".json"):
+        if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and file_split[
+            -1
+        ].endswith(".json"):
             # IDENTIFY JSON FILES
             # logger.info(file_split[-1])
             name_plist = file_split[-1]
             shutil.copy2(file_inside, name_plist)
             shutil.move(name_plist, os.path.join(dir_json, name_plist))
-        if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and file_split[-1].endswith(".xml"):
+        if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and file_split[
+            -1
+        ].endswith(".xml"):
             # IDENTIFY XML FILES
             # logger.info(file_split[-1])
             name_plist = file_split[-1]
             shutil.copy2(file_inside, name_plist)
             shutil.move(name_plist, os.path.join(dir_xml, name_plist))
         if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and (
-                file_split[-1].endswith(".sqlite") or file_split[-1].endswith(".sql")):
+            file_split[-1].endswith(".sqlite") or file_split[-1].endswith(".sql")
+        ):
             # IDENTIFY SQL FILES
             # logger.info(file_split[-1])
             name_plist = file_split[-1]
             shutil.copy2(file_inside, name_plist)
             shutil.move(name_plist, os.path.join(dir_db, name_plist))
-        if len(file_split) - len(dir_ipa.split(os.sep)) == 4 and file_split[-1] == file_split[-2].split(".app")[0] and \
-                file_split[-2].endswith(".app"):
+        if (
+            len(file_split) - len(dir_ipa.split(os.sep)) == 4
+            and file_split[-1] == file_split[-2].split(".app")[0]
+            and file_split[-2].endswith(".app")
+        ):
             # IDENTIFY BINARY FILE
             name_binary = "{}_binary".format(file_split[-1])
             shutil.copy2(file_inside, name_binary)
@@ -110,7 +120,14 @@ def unpacking(file_ipa, dir_binary):
                 cpu_choose = "{0}{1}".format(list_cpu_type[0], list_subtype_cpu[0])
             logger.info("[*] Convert binary to only {}".format(cpu_choose))
             binary_64_name = "{0}_{1}".format(name_binary, cpu_choose)
-            command_conversion = ["lipo", "-thin", cpu_choose, name_binary, "-output", binary_64_name]
+            command_conversion = [
+                "lipo",
+                "-thin",
+                cpu_choose,
+                name_binary,
+                "-output",
+                binary_64_name,
+            ]
             subprocess.call(command_conversion, stdout=subprocess.DEVNULL)
             shutil.move(binary_64_name, os.path.join(dir_binary, binary_64_name))
         # elif platform.system() != "Darwin":
@@ -128,7 +145,9 @@ def unpacking(file_ipa, dir_binary):
 
 def get_list_cpu_type(name_binary):
     command_check_architecture = ["otool", "-hv", name_binary]
-    process_command_check_arch = subprocess.Popen(command_check_architecture, stdout=subprocess.PIPE)
+    process_command_check_arch = subprocess.Popen(
+        command_check_architecture, stdout=subprocess.PIPE
+    )
     out, err = process_command_check_arch.communicate()
     out_string = out.decode("utf-8")
     lines = out_string.split("Mach header")

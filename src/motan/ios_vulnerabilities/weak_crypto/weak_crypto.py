@@ -21,7 +21,7 @@ class WeakCrypto(categories.ICodeVulnerability):
         self, analysis_info: IOSAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
-        
+
         try:
             bin_path = Path(analysis_info.bin_path)
             macho_object = lief.parse(bin_path.as_posix())
@@ -35,8 +35,10 @@ class WeakCrypto(categories.ICodeVulnerability):
 
             # TODO add configuration file where the plugin read the name of API
             weak_crypto = re.findall(
-                'kCCAlgorithmDES|kCCAlgorithm3DES|kCCAlgorithmRC2|'
-                'kCCAlgorithmRC4|kCCOptionECBMode|kCCOptionCBCMode', symbols)
+                "kCCAlgorithmDES|kCCAlgorithm3DES|kCCAlgorithmRC2|"
+                "kCCAlgorithmRC4|kCCOptionECBMode|kCCOptionCBCMode",
+                symbols,
+            )
             weak_crypto_api = list(set(weak_crypto))
 
             if len(weak_crypto_api) > 0:
@@ -53,6 +55,6 @@ class WeakCrypto(categories.ICodeVulnerability):
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"
             )
             raise
-        
+
         finally:
             analysis_info.checked_vulnerabilities.append(self.__class__.__name__)

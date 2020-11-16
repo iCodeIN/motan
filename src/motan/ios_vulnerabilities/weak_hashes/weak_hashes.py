@@ -21,7 +21,7 @@ class WeakHashes(categories.ICodeVulnerability):
         self, analysis_info: IOSAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
-        
+
         try:
             bin_path = Path(analysis_info.bin_path)
             macho_object = lief.parse(bin_path.as_posix())
@@ -35,18 +35,20 @@ class WeakHashes(categories.ICodeVulnerability):
 
             # TODO add configuration file where the plugin read the name of API
             weak_hashes = re.findall(
-                'CC_MD2_Init|CC_MD2_Update|'
-                'CC_MD2_Final|CC_MD2|MD2_Init|'
-                'MD2_Update|MD2_Final|CC_MD4_Init|'
-                'CC_MD4_Update|CC_MD4_Final|'
-                'CC_MD4|MD4_Init|MD4_Update|'
-                'MD4_Final|CC_MD5_Init|CC_MD5_Update|'
-                'CC_MD5_Final|CC_MD5|MD5_Init|'
-                'MD5_Update|MD5_Final|MD5Init|'
-                'MD5Update|MD5Final|CC_SHA1_Init|'
-                'CC_SHA1_Update|'
-                'CC_SHA1_Final|CC_SHA1|SHA1_Init|'
-                'SHA1_Update|SHA1_Final', symbols)
+                "CC_MD2_Init|CC_MD2_Update|"
+                "CC_MD2_Final|CC_MD2|MD2_Init|"
+                "MD2_Update|MD2_Final|CC_MD4_Init|"
+                "CC_MD4_Update|CC_MD4_Final|"
+                "CC_MD4|MD4_Init|MD4_Update|"
+                "MD4_Final|CC_MD5_Init|CC_MD5_Update|"
+                "CC_MD5_Final|CC_MD5|MD5_Init|"
+                "MD5_Update|MD5_Final|MD5Init|"
+                "MD5Update|MD5Final|CC_SHA1_Init|"
+                "CC_SHA1_Update|"
+                "CC_SHA1_Final|CC_SHA1|SHA1_Init|"
+                "SHA1_Update|SHA1_Final",
+                symbols,
+            )
             weak_hashes_api = list(set(weak_hashes))
             self.logger.info(weak_hashes_api)
             if len(weak_hashes_api) > 0:
@@ -63,6 +65,6 @@ class WeakHashes(categories.ICodeVulnerability):
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"
             )
             raise
-        
+
         finally:
             analysis_info.checked_vulnerabilities.append(self.__class__.__name__)

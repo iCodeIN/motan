@@ -11,7 +11,6 @@ from pathlib import Path
 import lief
 
 
-
 class SymbolsStrippedVulnerability(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -21,7 +20,7 @@ class SymbolsStrippedVulnerability(categories.ICodeVulnerability):
         self, analysis_info: IOSAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
-        
+
         try:
             bin_path = Path(analysis_info.bin_path)
             macho_object = lief.parse(bin_path.as_posix())
@@ -44,6 +43,6 @@ class SymbolsStrippedVulnerability(categories.ICodeVulnerability):
                 f"Error during '{self.__class__.__name__}' vulnerability check: {e}"
             )
             raise
-        
+
         finally:
             analysis_info.checked_vulnerabilities.append(self.__class__.__name__)
