@@ -33,7 +33,7 @@ def perform_analysis_without_timeout(
     language: str,
     ignore_libs: bool = False,
     fail_fast: bool = False,
-    keep_file: bool = False
+    keep_file: bool = False,
 ) -> List[VulnerabilityDetails]:
     # Needed for calculating the analysis duration.
     analysis_start = datetime.now()
@@ -123,7 +123,7 @@ def perform_analysis_with_timeout(
     ignore_libs: bool = False,
     fail_fast: bool = False,
     timeout: int = None,
-    keep_file:bool = False
+    keep_file: bool = False,
 ) -> List[VulnerabilityDetails]:
     with ProcessPool(1) as pool:
         return pool.schedule(

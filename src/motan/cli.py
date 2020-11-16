@@ -63,7 +63,7 @@ def get_cmd_args(args: List[str] = None):
     parser.add_argument(
         "--keepfile",
         action="store_true",
-        help="Flag to keep intermediate files generated during the analysis"
+        help="Flag to keep intermediate files generated during the analysis",
     )
     return parser.parse_args(args)
 
@@ -82,7 +82,7 @@ def main():
         arguments.ignore_libs,
         arguments.fail_fast,
         arguments.timeout,
-        arguments.keepfile
+        arguments.keepfile,
     )
 
     vuln_json = VulnerabilityDetails.Schema().dumps(found_vulnerabilities, many=True)

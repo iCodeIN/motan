@@ -70,10 +70,12 @@ def is_class_implementing_interfaces(clazz: ClassDefItem, interfaces: Iterable[s
 
 def get_list_cpu_type(name_binary):
     """
-        Get CPU types of Fat-Binary
+    Get CPU types of Fat-Binary
     """
     command_check_architecture = ["otool", "-hv", name_binary]
-    process_command_check_arch = subprocess.Popen(command_check_architecture, stdout=subprocess.PIPE)
+    process_command_check_arch = subprocess.Popen(
+        command_check_architecture, stdout=subprocess.PIPE
+    )
     out, err = process_command_check_arch.communicate()
     out_string = out.decode("utf-8")
     lines = out_string.split("Mach header")
@@ -104,7 +106,7 @@ def get_list_cpu_type(name_binary):
 
 def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
     """
-        Unpacking IPA file
+    Unpacking IPA file
     """
     logger.debug(f"Unpacking f{ipa_path}")
 
@@ -121,20 +123,21 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
     shutil.copy2(ipa_path, zip_file)
     logger.debug("Extract all zip content")
     command_zip = ["unzip", "-q", "-o", zip_file, "-d", output_dir_zip]
-    
+
     subprocess.call(command_zip)
-    
+
     logger.debug("Unpacking iOS app")
     list_ff_files = list()
     for (dirpath, dirnames, filenames) in os.walk(output_dir_zip):
         list_ff_files += [os.path.join(dirpath, file) for file in filenames]
-    
+
     name_binary = ""
     for file_inside in list_ff_files:
         file_split = file_inside.split(os.sep)
         # len(file_split) - len(output_dir_zip.split(os.sep)) == 3 and   \
-        if file_split[-1] == file_split[-2].split(".app")[0] and \
-                file_split[-2].endswith(".app"):
+        if file_split[-1] == file_split[-2].split(".app")[0] and file_split[
+            -2
+        ].endswith(".app"):
             # Identify binary file
             name_binary = "{}_binary".format(file_split[-1])
             shutil.copy2(file_inside, name_binary)
@@ -150,12 +153,21 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
                 cpu_choose = "arm64"
             elif len(list_cpu_type) == 1 and "all" not in list_cpu_type:
                 cpu_choose = "{0}{1}".format(list_cpu_type[0], list_subtype_cpu[0])
-            
-            logger.debug("Convert binary to specific architecture {}".format(cpu_choose))
+
+            logger.debug(
+                "Convert binary to specific architecture {}".format(cpu_choose)
+            )
 
             # get name binary and execute lipo command to extract only 64bit
             binary_64_name = "{0}_{1}".format(name_binary, cpu_choose)
-            command_conversion = ["lipo", "-thin", cpu_choose, name_binary, "-output", binary_64_name]
+            command_conversion = [
+                "lipo",
+                "-thin",
+                cpu_choose,
+                name_binary,
+                "-output",
+                binary_64_name,
+            ]
             subprocess.call(command_conversion, stdout=subprocess.DEVNULL)
 
             # move binary to specific path
@@ -169,7 +181,7 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
             return None
     except Exception as e:
         logger.error(e)
-    
+
 
 def delete_support_files_ipa(working_dir_to_delete: str):
     file_list = glob.glob(os.path.join(working_dir_to_delete, "*"))
