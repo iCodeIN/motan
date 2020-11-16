@@ -1,0 +1,11 @@
+{
+  "name": "Insecure Random",
+  "description": "Binary make us of some insecure random APIs",
+  "remediation": "",
+  "references": {
+    "text": "Further Information on [[1]]",
+    "links": {
+      "1": "https://mobile-security.gitbook.io/mobile-security-testing-guide/ios-testing-guide/0x06e-testing-cryptography"
+    }
+  }
+}
