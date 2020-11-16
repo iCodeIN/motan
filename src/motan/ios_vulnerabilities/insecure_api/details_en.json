@@ -1,0 +1,11 @@
+{
+  "name": "Insecure APIs",
+  "description": "Binary make us of insecure APIs",
+  "remediation": "",
+  "references": {
+    "text": "Further Information on [[1]]",
+    "links": {
+      "1": "https://developer.apple.com/library/archive/documentation/Security/Conceptual/SecureCodingGuide/Articles/BufferOverflows.html#//apple_ref/doc/uid/TP40002577-SW1"
+    }
+  }
+}

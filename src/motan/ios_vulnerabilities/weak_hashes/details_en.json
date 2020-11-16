@@ -1,0 +1,11 @@
+{
+  "name": "Weak Hashing APIs",
+  "description": "Binary make us of some weak hashing APIs",
+  "remediation": "",
+  "references": {
+    "text": "Further Information on [[1]]",
+    "links": {
+      "1": ""
+    }
+  }
+}

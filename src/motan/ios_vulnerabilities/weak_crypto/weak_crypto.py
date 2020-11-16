@@ -12,7 +12,7 @@ import lief
 import re
 
 
-class BannedAPI(categories.ICodeVulnerability):
+class WeakCrypto(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -30,25 +30,18 @@ class BannedAPI(categories.ICodeVulnerability):
             )
             details.id = self.__class__.__name__
 
-            # TODO to complete
             vulnerability_found = False
             symbols = "\n".join([x.name for x in macho_object.symbols])
 
-            # add configuration file where the plugin read the name of API
-            banned = re.findall(
-                '_alloca|_gets|_memcpy|_printf|_scanf|'
-                '_sprintf|_sscanf|_strcat|'
-                'StrCat|_strcpy|StrCpy|_strlen|StrLen|'
-                '_strncat|StrNCat|_strncpy|'
-                'StrNCpy|_strtok|_swprintf|_vsnprintf|'
-                '_vsprintf|_vswprintf|_wcscat|_wcscpy|'
-                '_wcslen|_wcsncat|_wcsncpy|_wcstok|_wmemcpy|'
-                '_fopen|_chmod|_chown|_stat|_mktemp', symbols)
-            banned_api = list(set(banned))
+            # TODO add configuration file where the plugin read the name of API
+            weak_crypto = re.findall(
+                'kCCAlgorithmDES|kCCAlgorithm3DES|kCCAlgorithmRC2|'
+                'kCCAlgorithmRC4|kCCOptionECBMode|kCCOptionCBCMode', symbols)
+            weak_crypto_api = list(set(weak_crypto))
 
-            if len(banned_api) > 0:
+            if len(weak_crypto_api) > 0:
                 vulnerability_found = True
-                details.code.extend(", ".join(banned_api))
+                details.api = ", ".join(weak_crypto_api)
 
             if vulnerability_found:
                 return details

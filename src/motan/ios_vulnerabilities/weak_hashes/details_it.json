@@ -1,0 +1,11 @@
+{
+  "name": "Utilizzo di API di hashing deprecate",
+  "description": "Il binario utilizzo alcune API di hashing deprecate",
+  "remediation": "",
+  "references": {
+    "text": "Maggiori informazioni [[1]]",
+    "links": {
+      "1": ""
+    }
+  }
+}

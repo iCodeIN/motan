@@ -1,0 +1,11 @@
+{
+  "name": "Utilizzo di API Crypto Deprecate",
+  "description": "Il binario utilizzo alcune API crypto deprecate",
+  "remediation": "",
+  "references": {
+    "text": "Maggiori informazioni [[1]]",
+    "links": {
+      "1": "https://mobile-security.gitbook.io/mobile-security-testing-guide/ios-testing-guide/0x06e-testing-cryptography"
+    }
+  }
+}
