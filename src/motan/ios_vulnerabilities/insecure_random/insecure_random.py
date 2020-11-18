@@ -34,7 +34,7 @@ class InsecureRandom(categories.ICodeVulnerability):
             symbols = "\n".join([x.name for x in macho_object.symbols])
 
             # TODO add configuration file where the plugin read the name of API
-            random = re.findall("_srando" | "_random", symbols)
+            random = re.findall("_srando|_random", symbols)
             random_api = list(set(random))
 
             if len(random_api) > 0:

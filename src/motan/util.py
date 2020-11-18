@@ -131,6 +131,7 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
     for (dirpath, dirnames, filenames) in os.walk(output_dir_zip):
         list_ff_files += [os.path.join(dirpath, file) for file in filenames]
 
+    # TODO add plist files here
     name_binary = ""
     for file_inside in list_ff_files:
         file_split = file_inside.split(os.sep)

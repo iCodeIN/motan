@@ -12,7 +12,7 @@ import lief
 import re
 
 
-class WeakHashes(categories.ICodeVulnerability):
+class MallocFunction(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -32,27 +32,11 @@ class WeakHashes(categories.ICodeVulnerability):
 
             vulnerability_found = False
             symbols = "\n".join([x.name for x in macho_object.symbols])
+            malloc = re.findall("_malloc", symbols)
+            malloc_api = list(set(malloc))
 
-            # TODO add configuration file where the plugin read the name of API
-            weak_hashes = re.findall(
-                "CC_MD2_Init|CC_MD2_Update|"
-                "CC_MD2_Final|CC_MD2|MD2_Init|"
-                "MD2_Update|MD2_Final|CC_MD4_Init|"
-                "CC_MD4_Update|CC_MD4_Final|"
-                "CC_MD4|MD4_Init|MD4_Update|"
-                "MD4_Final|CC_MD5_Init|CC_MD5_Update|"
-                "CC_MD5_Final|CC_MD5|MD5_Init|"
-                "MD5_Update|MD5_Final|MD5Init|"
-                "MD5Update|MD5Final|CC_SHA1_Init|"
-                "CC_SHA1_Update|"
-                "CC_SHA1_Final|CC_SHA1|SHA1_Init|"
-                "SHA1_Update|SHA1_Final",
-                symbols,
-            )
-            weak_hashes_api = list(set(weak_hashes))
-            if len(weak_hashes_api) > 0:
+            if len(malloc_api) > 0:
                 vulnerability_found = True
-                details.api = ", ".join(weak_hashes_api)
 
             if vulnerability_found:
                 return details

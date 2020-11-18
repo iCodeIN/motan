@@ -5,7 +5,8 @@
   "references": {
     "text": "Maggiori informazioni [[1]]",
     "links": {
-      "1": ""
+      "1": "https://developer.apple.com/library/archive/documentation/Security/Conceptual/cryptoservices/GeneralPurposeCrypto/GeneralPurposeCrypto.html",
+      "2": "https://mobile-security.gitbook.io/mobile-security-testing-guide/ios-testing-guide/0x06e-testing-cryptography"
     }
   }
 }

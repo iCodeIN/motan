@@ -370,10 +370,10 @@ def otool_analysis(bin_path):
 
         if len(mal_s) > 1:
             malloc = {
-                "issue": "Binary make use of malloc Function",
+                "issue": "Binary make use of malloc_function Function",
                 "level": IN_SECURE,
                 "description": (
-                    "The binary may use malloc" " function instead of calloc."
+                    "The binary may use malloc_function" " function instead of calloc."
                 ),
                 "cvss": 2,
                 "cwe": "CWE-789",
@@ -413,7 +413,7 @@ def otool_analysis(bin_path):
             "hashes": hashes,
             "randoms": randoms,
             "logging": logging,
-            "malloc": malloc,
+            "malloc_function": malloc,
             "debug": debug,
         }
 
