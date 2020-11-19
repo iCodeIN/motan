@@ -23,15 +23,12 @@ class InsecureAPI(categories.ICodeVulnerability):
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
-            bin_path = Path(analysis_info.bin_path)
-            macho_object = lief.parse(bin_path.as_posix())
             details = vuln.get_vulnerability_details(
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
 
             vulnerability_found = False
-            symbols = "\n".join([x.name for x in macho_object.symbols])
 
             # TODO add configuration file where the plugin read the name of API
             banned = re.findall(
@@ -43,7 +40,7 @@ class InsecureAPI(categories.ICodeVulnerability):
                 "_vsprintf|_vswprintf|_wcscat|_wcscpy|"
                 "_wcslen|_wcsncat|_wcsncpy|_wcstok|_wmemcpy|"
                 "_fopen|_chmod|_chown|_stat|_mktemp",
-                symbols,
+                analysis_info.macho_symbols,
             )
             banned_api = list(set(banned))
 

@@ -1,6 +1,6 @@
 {
   "name": "Symbols Stripped",
-  "description": "I Simboli sono disponibili.'",
+  "description": "I Simboli sono disponibili",
   "remediation": "Per rimuovere i simboli di debug, impostare Rimuovi simboli di debug durante la copia su SÌ tramite le impostazioni di compilazione del progetto.",
   "references": {
     "text": "Maggiori Informazioni [[1]] [[2]] [[3]]",

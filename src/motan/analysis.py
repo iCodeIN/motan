@@ -8,6 +8,8 @@ from typing import Optional, List
 from androguard.core.analysis.analysis import Analysis as AndroguardAnalysis
 from androguard.core.bytecodes.apk import APK
 from androguard.misc import AnalyzeAPK
+from pathlib import Path
+import lief
 
 from motan import util
 
@@ -90,11 +92,17 @@ class IOSAnalysis(BaseAnalysis):
             os.getcwd(), self.working_dir, self.only_name + "_binary"
         )
         # dir_binary_extraction = self.ipa_path.rsplit(".", 1)[0] + "_binary"
-        self.bin_path = util.unpacking_ios_app(
+        self.bin_path, self.plist_readable = util.unpacking_ios_app(
             ipa_path,
             self.dir_binary_extraction,
             working_dir=os.path.join(os.getcwd(), self.working_dir),
         )
+        self.bin_path = Path(self.bin_path)
+        # macho_object to perfrom security analysis
+        self.macho_object = lief.parse(self.bin_path.as_posix())
+
+        # macho_symbols
+        self.macho_symbols = "\n".join([x.name for x in self.macho_object.symbols])
         # The list of vulnerabilities already checked for this application.
         self.checked_vulnerabilities: List[str] = []
 

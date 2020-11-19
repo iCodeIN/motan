@@ -23,18 +23,15 @@ class LoggingFunction(categories.ICodeVulnerability):
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
-            bin_path = Path(analysis_info.bin_path)
-            macho_object = lief.parse(bin_path.as_posix())
             details = vuln.get_vulnerability_details(
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
 
             vulnerability_found = False
-            symbols = "\n".join([x.name for x in macho_object.symbols])
 
             # TODO add configuration file where the plugin read the name of API
-            debug = re.findall("_NSLog|_debugPrint|_println|_print|_dump", symbols)
+            debug = re.findall("_NSLog|_debugPrint|_println|_print|_dump", analysis_info.macho_symbols)
             debug_api = list(set(debug))
 
             if len(debug_api) > 0:

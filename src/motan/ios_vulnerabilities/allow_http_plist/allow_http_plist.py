@@ -9,10 +9,9 @@ import subprocess
 import os
 from pathlib import Path
 import lief
-import re
 
 
-class WeakCrypto(categories.ICodeVulnerability):
+class AllowHttpPlist(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -27,20 +26,14 @@ class WeakCrypto(categories.ICodeVulnerability):
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
-
             vulnerability_found = False
-
-            # TODO add configuration file where the plugin read the name of API
-            weak_crypto = re.findall(
-                "kCCAlgorithmDES|kCCAlgorithm3DES|kCCAlgorithmRC2|"
-                "kCCAlgorithmRC4|kCCOptionECBMode|kCCOptionCBCMode",
-                analysis_info.macho_symbols,
-            )
-            weak_crypto_api = list(set(weak_crypto))
-
-            if len(weak_crypto_api) > 0:
-                vulnerability_found = True
-                details.api = ", ".join(weak_crypto_api)
+            if 'NSAppTransportSecurity' in analysis_info.plist_readable:
+                ns_app_trans_dic = analysis_info.plist_readable['NSAppTransportSecurity']
+                if 'NSExceptionDomains' in ns_app_trans_dic:
+                    for key in ns_app_trans_dic['NSExceptionDomains']:
+                        if ns_app_trans_dic['NSExceptionDomains'][key]['NSExceptionAllowsInsecureHTTPLoads'] is True:
+                            vulnerability_found = True
+                            break
 
             if vulnerability_found:
                 return details

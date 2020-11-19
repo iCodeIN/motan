@@ -9,6 +9,8 @@ from typing import Iterable, List
 import shutil
 import subprocess
 import glob
+from biplist import readPlist, writePlistToString
+
 
 from androguard.core.bytecodes.apk import APK
 from androguard.core.bytecodes.dvm import ClassDefItem
@@ -131,8 +133,8 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
     for (dirpath, dirnames, filenames) in os.walk(output_dir_zip):
         list_ff_files += [os.path.join(dirpath, file) for file in filenames]
 
-    # TODO add plist files here
     name_binary = ""
+    readable_plist = ""
     for file_inside in list_ff_files:
         file_split = file_inside.split(os.sep)
         # len(file_split) - len(output_dir_zip.split(os.sep)) == 3 and   \
@@ -142,6 +144,9 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
             # Identify binary file
             name_binary = "{}_binary".format(file_split[-1])
             shutil.copy2(file_inside, name_binary)
+        if file_split[-1].endswith(".plist") and file_split[-1].lower() == "info.plist":
+            plist_path = file_inside
+            readable_plist = readPlist(plist_path)
     try:
         if name_binary != "":
 
@@ -176,7 +181,7 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
 
             shutil.move(binary_64_name, path_bin)
             os.remove(name_binary)
-            return path_bin
+            return path_bin, readable_plist
         else:
             logger.error("Not found binary")
             return None

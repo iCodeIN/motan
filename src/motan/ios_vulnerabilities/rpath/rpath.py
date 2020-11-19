@@ -22,13 +22,11 @@ class RPathVulnerability(categories.ICodeVulnerability):
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
-            bin_path = Path(analysis_info.bin_path)
-            macho_object = lief.parse(bin_path.as_posix())
             details = vuln.get_vulnerability_details(
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
-            if not macho_object.has_rpath:
+            if not analysis_info.macho_object.has_rpath:
                 vunerability_found = False
                 return None
             else:

@@ -22,15 +22,13 @@ class RestrictedVulnerability(categories.ICodeVulnerability):
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
-            bin_path = Path(analysis_info.bin_path)
-            macho_object = lief.parse(bin_path.as_posix())
             details = vuln.get_vulnerability_details(
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
 
             vulnerability_found = True
-            for segment in macho_object.segments:
+            for segment in analysis_info.macho_object.segments:
                 if segment.name.lower() == "__restrict":
                     vulnerability_found = False
                     break

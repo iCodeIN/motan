@@ -1,6 +1,6 @@
 {
   "name": "Symbols Stripped",
-  "description": "Symbols are available. ",
+  "description": "Symbols are available",
   "remediation": "To strip debugging symbols, set Strip Debug Symbols During Copy to YES via the project\\'s build settings.",
   "references": {
     "text": "Further Information [[1]] [[2]] [[3]]",

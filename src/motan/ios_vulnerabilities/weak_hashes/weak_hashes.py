@@ -23,15 +23,10 @@ class WeakHashes(categories.ICodeVulnerability):
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
-            bin_path = Path(analysis_info.bin_path)
-            macho_object = lief.parse(bin_path.as_posix())
             details = vuln.get_vulnerability_details(
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
-
-            vulnerability_found = False
-            symbols = "\n".join([x.name for x in macho_object.symbols])
 
             # TODO add configuration file where the plugin read the name of API
             weak_hashes = re.findall(
@@ -47,7 +42,7 @@ class WeakHashes(categories.ICodeVulnerability):
                 "CC_SHA1_Update|"
                 "CC_SHA1_Final|CC_SHA1|SHA1_Init|"
                 "SHA1_Update|SHA1_Final",
-                symbols,
+                analysis_info.macho_symbols,
             )
             weak_hashes_api = list(set(weak_hashes))
             if len(weak_hashes_api) > 0:

@@ -23,16 +23,13 @@ class MallocFunction(categories.ICodeVulnerability):
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
         try:
-            bin_path = Path(analysis_info.bin_path)
-            macho_object = lief.parse(bin_path.as_posix())
             details = vuln.get_vulnerability_details(
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
 
             vulnerability_found = False
-            symbols = "\n".join([x.name for x in macho_object.symbols])
-            malloc = re.findall("_malloc", symbols)
+            malloc = re.findall("_malloc", analysis_info.macho_symbols)
             malloc_api = list(set(malloc))
 
             if len(malloc_api) > 0:
