@@ -90,14 +90,14 @@ class IOSAnalysis(BaseAnalysis):
         self.ipa_path: str = ipa_path
         self.language: str = language
         self.only_name = self.ipa_path.rsplit(".", 1)[0].rsplit(os.sep, 1)[1]
-        self.working_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), working_dir)
+        self.working_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.realpath(__file__))), working_dir
+        )
         self.dir_binary_extraction = self.working_dir
 
         # dir_binary_extraction = self.ipa_path.rsplit(".", 1)[0] + "_binary"
         self.bin_path, self.plist_readable = util.unpacking_ios_app(
-            ipa_path,
-            self.dir_binary_extraction,
-            working_dir=self.working_dir
+            ipa_path, self.dir_binary_extraction, working_dir=self.working_dir
         )
 
         self.bin_path = Path(self.bin_path)
