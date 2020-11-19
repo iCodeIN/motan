@@ -137,7 +137,6 @@ def perform_analysis_without_timeout(
         if analysis and platform == "iOS" and not keep_files:
             logger.info("Deleting all dir and temp files")
             util.delete_support_files_ipa(analysis.working_dir)
-
         # Calculate the total time (in seconds) needed for the analysis.
         analysis_duration = datetime.now() - analysis_start
 
