@@ -27,9 +27,14 @@ class InsecureConnectionsPlist(categories.ICodeVulnerability):
             )
             details.id = self.__class__.__name__
             vulnerability_found = False
-            if 'NSAppTransportSecurity' in analysis_info.plist_readable:
-                ns_app_trans_dic = analysis_info.plist_readable['NSAppTransportSecurity']
-                if 'NSAllowsArbitraryLoads' in ns_app_trans_dic and ns_app_trans_dic['NSAllowsArbitraryLoads']:
+            if "NSAppTransportSecurity" in analysis_info.plist_readable:
+                ns_app_trans_dic = analysis_info.plist_readable[
+                    "NSAppTransportSecurity"
+                ]
+                if (
+                    "NSAllowsArbitraryLoads" in ns_app_trans_dic
+                    and ns_app_trans_dic["NSAllowsArbitraryLoads"]
+                ):
                     vulnerability_found = True
 
             if vulnerability_found:

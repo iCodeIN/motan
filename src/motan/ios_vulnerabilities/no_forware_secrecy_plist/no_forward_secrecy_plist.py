@@ -27,11 +27,19 @@ class NoForwardSecrecyPlist(categories.ICodeVulnerability):
             )
             details.id = self.__class__.__name__
             vulnerability_found = False
-            if 'NSAppTransportSecurity' in analysis_info.plist_readable:
-                ns_app_trans_dic = analysis_info.plist_readable['NSAppTransportSecurity']
-                for key in ns_app_trans_dic['NSExceptionDomains']:
-                    if 'NSExceptionRequiresForwardSecrecy' in ns_app_trans_dic['NSExceptionDomains'][key] and \
-                            ns_app_trans_dic['NSExceptionDomains'][key]['NSExceptionRequiresForwardSecrecy'] is False:
+            if "NSAppTransportSecurity" in analysis_info.plist_readable:
+                ns_app_trans_dic = analysis_info.plist_readable[
+                    "NSAppTransportSecurity"
+                ]
+                for key in ns_app_trans_dic["NSExceptionDomains"]:
+                    if (
+                        "NSExceptionRequiresForwardSecrecy"
+                        in ns_app_trans_dic["NSExceptionDomains"][key]
+                        and ns_app_trans_dic["NSExceptionDomains"][key][
+                            "NSExceptionRequiresForwardSecrecy"
+                        ]
+                        is False
+                    ):
                         vulnerability_found = True
                         break
 

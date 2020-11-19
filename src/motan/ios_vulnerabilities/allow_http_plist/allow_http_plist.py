@@ -27,11 +27,18 @@ class AllowHttpPlist(categories.ICodeVulnerability):
             )
             details.id = self.__class__.__name__
             vulnerability_found = False
-            if 'NSAppTransportSecurity' in analysis_info.plist_readable:
-                ns_app_trans_dic = analysis_info.plist_readable['NSAppTransportSecurity']
-                if 'NSExceptionDomains' in ns_app_trans_dic:
-                    for key in ns_app_trans_dic['NSExceptionDomains']:
-                        if ns_app_trans_dic['NSExceptionDomains'][key]['NSExceptionAllowsInsecureHTTPLoads'] is True:
+            if "NSAppTransportSecurity" in analysis_info.plist_readable:
+                ns_app_trans_dic = analysis_info.plist_readable[
+                    "NSAppTransportSecurity"
+                ]
+                if "NSExceptionDomains" in ns_app_trans_dic:
+                    for key in ns_app_trans_dic["NSExceptionDomains"]:
+                        if (
+                            ns_app_trans_dic["NSExceptionDomains"][key][
+                                "NSExceptionAllowsInsecureHTTPLoads"
+                            ]
+                            is True
+                        ):
                             vulnerability_found = True
                             break
 

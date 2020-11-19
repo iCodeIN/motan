@@ -28,12 +28,20 @@ class InsecureTLSVersionPlist(categories.ICodeVulnerability):
             details.id = self.__class__.__name__
             vulnerability_found = False
 
-            insecure_tls = ['TLSv1.0', 'TLSv1.1']
-            if 'NSAppTransportSecurity' in analysis_info.plist_readable:
-                ns_app_trans_dic = analysis_info.plist_readable['NSAppTransportSecurity']
-                for key in ns_app_trans_dic['NSExceptionDomains']:
-                    if 'NSExceptionMinimumTLSVersion' in ns_app_trans_dic['NSExceptionDomains'][key] and \
-                            ns_app_trans_dic['NSExceptionDomains'][key]['NSExceptionMinimumTLSVersion'] in insecure_tls:
+            insecure_tls = ["TLSv1.0", "TLSv1.1"]
+            if "NSAppTransportSecurity" in analysis_info.plist_readable:
+                ns_app_trans_dic = analysis_info.plist_readable[
+                    "NSAppTransportSecurity"
+                ]
+                for key in ns_app_trans_dic["NSExceptionDomains"]:
+                    if (
+                        "NSExceptionMinimumTLSVersion"
+                        in ns_app_trans_dic["NSExceptionDomains"][key]
+                        and ns_app_trans_dic["NSExceptionDomains"][key][
+                            "NSExceptionMinimumTLSVersion"
+                        ]
+                        in insecure_tls
+                    ):
                         vulnerability_found = True
                         break
 
