@@ -3,13 +3,13 @@
 import logging
 import os
 from abc import ABC
+from pathlib import Path
 from typing import Optional, List
 
+import lief
 from androguard.core.analysis.analysis import Analysis as AndroguardAnalysis
 from androguard.core.bytecodes.apk import APK
 from androguard.misc import AnalyzeAPK
-from pathlib import Path
-import lief
 
 from motan import util
 
@@ -28,6 +28,8 @@ class BaseAnalysis(ABC):
 class AndroidAnalysis(BaseAnalysis):
     def __init__(self, apk_path: str, language: str = "en", ignore_libs: bool = False):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+
+        self.logger.info(f"Analyzing Android application '{apk_path}'")
 
         self.apk_path: str = apk_path
         self.language: str = language
@@ -56,7 +58,6 @@ class AndroidAnalysis(BaseAnalysis):
                 )
             )
 
-        self.logger.info(f"Analyzing Android application '{apk_path}'")
         self.perform_androguard_analysis()
 
     def perform_androguard_analysis(self) -> None:
@@ -84,6 +85,8 @@ class IOSAnalysis(BaseAnalysis):
     ):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
+        self.logger.info(f"Analyzing iOS application '{ipa_path}'")
+
         self.ipa_path: str = ipa_path
         self.language: str = language
         self.only_name = self.ipa_path.rsplit(".", 1)[0].rsplit(os.sep, 1)[1]
@@ -98,12 +101,10 @@ class IOSAnalysis(BaseAnalysis):
             working_dir=os.path.join(os.getcwd(), self.working_dir),
         )
         self.bin_path = Path(self.bin_path)
-        # macho_object to perfrom security analysis
+        # macho_object to perform security analysis
         self.macho_object = lief.parse(self.bin_path.as_posix())
 
         # macho_symbols
         self.macho_symbols = "\n".join([x.name for x in self.macho_object.symbols])
         # The list of vulnerabilities already checked for this application.
         self.checked_vulnerabilities: List[str] = []
-
-        self.logger.info(f"Analyzing iOS application '{ipa_path}'")
