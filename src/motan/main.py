@@ -77,11 +77,13 @@ def perform_analysis_without_timeout(
 
         elif platform == "iOS":
             manager = IOSVulnerabilityManager()
-            analysis = IOSAnalysis(input_app_path, language)
+            analysis = IOSAnalysis(input_app_path, language, keep_files)
 
         else:
             logger.critical(f"Unknown platform '{platform}'")
             raise ValueError(f"Unknown platform '{platform}'")
+
+        analysis.initialize()
 
         for item in manager.get_all_vulnerability_checks():
             try:
@@ -98,10 +100,11 @@ def perform_analysis_without_timeout(
     except Exception as e:
         logger.critical(f"Vulnerability analysis failed: {e}")
 
-        logger.info(
-            f"{len(analysis.checked_vulnerabilities)} vulnerabilities checked "
-            f"before failure: {', '.join(analysis.checked_vulnerabilities)}"
-        )
+        if analysis:
+            logger.info(
+                f"{len(analysis.checked_vulnerabilities)} vulnerabilities checked "
+                f"before failure: {', '.join(analysis.checked_vulnerabilities)}"
+            )
 
         if found_vulnerabilities:
             logger.info(
@@ -117,10 +120,11 @@ def perform_analysis_without_timeout(
         # No exceptions were raised, this is a successful vulnerability analysis.
         logger.info(f"Vulnerability analysis finished with {failures} failure(s)")
 
-        logger.info(
-            f"{len(analysis.checked_vulnerabilities)} vulnerabilities checked: "
-            f"{', '.join(analysis.checked_vulnerabilities)}"
-        )
+        if analysis:
+            logger.info(
+                f"{len(analysis.checked_vulnerabilities)} vulnerabilities checked: "
+                f"{', '.join(analysis.checked_vulnerabilities)}"
+            )
 
         if found_vulnerabilities:
             logger.info(
@@ -133,12 +137,8 @@ def perform_analysis_without_timeout(
         return found_vulnerabilities
 
     finally:
-        # Cleanup intermediate files even if the analysis failed.
-        if analysis and platform == "iOS" and not keep_files:
-            logger.info("Deleting all dir and temp files")
-            util.delete_support_files_ipa(analysis.working_dir)
-        elif not analysis and platform == "iOS":
-            util.delete_support_files_ipa(analysis.working_dir)
+        if analysis:
+            analysis.finalize()
 
         # Calculate the total time (in seconds) needed for the analysis.
         analysis_duration = datetime.now() - analysis_start
@@ -153,8 +153,8 @@ def perform_analysis_with_timeout(
     language: str,
     ignore_libs: bool = False,
     fail_fast: bool = False,
-    timeout: int = None,
     keep_files: bool = False,
+    timeout: int = None,
 ) -> List[VulnerabilityDetails]:
     with ProcessPool(1) as pool:
         return pool.schedule(

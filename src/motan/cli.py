@@ -83,8 +83,8 @@ def main():
         arguments.language,
         arguments.ignore_libs,
         arguments.fail_fast,
-        arguments.timeout,
         arguments.keep_files,
+        arguments.timeout,
     )
 
     vuln_json = VulnerabilityDetails.Schema().dumps(found_vulnerabilities, many=True)

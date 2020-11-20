@@ -147,9 +147,9 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
         if file_split[-1].endswith(".plist") and file_split[-1].lower() == "info.plist":
             plist_path = file_inside
             readable_plist = readPlist(plist_path)
-    try:
-        if name_binary != "":
 
+    if name_binary != "":
+        try:
             list_cpu_type, list_subtype_cpu = get_list_cpu_type(name_binary)
 
             # identify cpu type
@@ -178,15 +178,15 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
 
             # move binary to specific path
             path_bin = os.path.join(output_dir_bin, binary_64_name)
-
             shutil.move(binary_64_name, path_bin)
-            os.remove(name_binary)
             return path_bin, readable_plist
-        else:
-            logger.error("Not found binary")
-            return None
-    except Exception as e:
-        logger.error(e)
+        except Exception as e:
+            logger.error(e)
+        finally:
+            os.remove(name_binary)
+    else:
+        logger.error("Not found binary")
+        return None
 
 
 def delete_support_files_ipa(working_dir_to_delete: str):
