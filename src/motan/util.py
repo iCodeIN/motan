@@ -143,6 +143,7 @@ def unpacking_ios_app(ipa_path: str, working_dir: str):
 
                 plist_readable = readPlist(os.path.join(ouput_dir, "Info.plist"))
                 bin_name = plist_readable.get("CFBundleExecutable", "")
+                break
 
     with zipfile.ZipFile(zipfile_output, "r") as zipfile_output_ipa:
         for entry in zipfile_output_ipa.infolist():
@@ -162,6 +163,7 @@ def unpacking_ios_app(ipa_path: str, working_dir: str):
                 os.makedirs(ouput_dir, exist_ok=True)
                 with open(name_binary, "wb") as binary_output:
                     binary_output.write(binary)
+                break
 
     if name_binary != "":
         try:
