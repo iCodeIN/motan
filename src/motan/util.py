@@ -40,7 +40,12 @@ def get_libs_to_ignore() -> List[str]:
 
 
 def check_valid_apk_file(input_file: str):
-    if not APK(input_file).is_valid_APK():
+    try:
+        valid_apk = APK(input_file).is_valid_APK()
+    except Exception:
+        valid_apk = False
+
+    if not valid_apk:
         raise ValueError("This file is not a valid apk file")
 
 
