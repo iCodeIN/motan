@@ -5,10 +5,8 @@ from typing import Optional, List
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
 import os
-from pathlib import Path
-import lief
+from collections.abc import Iterable
 
 
 class NoForwardSecrecyPlist(categories.ICodeVulnerability):
@@ -33,7 +31,7 @@ class NoForwardSecrecyPlist(categories.ICodeVulnerability):
                 ]
                 if "NSExceptionDomains" in ns_app_trans_dic:
                     for key in ns_app_trans_dic["NSExceptionDomains"]:
-                        if (
+                        if isinstance(ns_app_trans_dic["NSExceptionDomains"][key], Iterable) and (
                             "NSExceptionRequiresForwardSecrecy"
                             in ns_app_trans_dic["NSExceptionDomains"][key]
                             and ns_app_trans_dic["NSExceptionDomains"][key][

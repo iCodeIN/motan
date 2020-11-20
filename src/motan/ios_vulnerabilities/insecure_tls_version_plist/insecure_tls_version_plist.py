@@ -5,10 +5,9 @@ from typing import Optional, List
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
 import os
-from pathlib import Path
-import lief
+from collections.abc import Iterable
+
 
 
 class InsecureTLSVersionPlist(categories.ICodeVulnerability):
@@ -35,7 +34,7 @@ class InsecureTLSVersionPlist(categories.ICodeVulnerability):
                 ]
                 if "NSExceptionDomains" in ns_app_trans_dic:
                     for key in ns_app_trans_dic["NSExceptionDomains"]:
-                        if (
+                        if isinstance(ns_app_trans_dic["NSExceptionDomains"][key], Iterable) and (
                             "NSExceptionMinimumTLSVersion"
                             in ns_app_trans_dic["NSExceptionDomains"][key]
                             and ns_app_trans_dic["NSExceptionDomains"][key][
