@@ -139,17 +139,21 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
         file_split = file_inside.split(os.sep)
 
         # len(file_split) - len(output_dir_zip.split(os.sep)) == 3 and   \
-        if file_split[-3] == "Payload" and \
-                file_split[-1] == file_split[-2].split(".app")[0] and \
-                file_split[-2].endswith(".app"):
+        if (
+            file_split[-3] == "Payload"
+            and file_split[-1] == file_split[-2].split(".app")[0]
+            and file_split[-2].endswith(".app")
+        ):
 
             # Identify binary file
             name_binary = "{}_binary".format(file_split[-1])
             shutil.copy2(file_inside, name_binary)
 
-        if file_split[-3] == "Payload" and \
-                file_split[-1].endswith(".plist") and \
-                file_split[-1].lower() == "info.plist":
+        if (
+            file_split[-3] == "Payload"
+            and file_split[-1].endswith(".plist")
+            and file_split[-1].lower() == "info.plist"
+        ):
             plist_path = file_inside
             readable_plist = readPlist(plist_path)
 

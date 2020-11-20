@@ -17,7 +17,7 @@ class AllowHttpPlist(categories.ICodeVulnerability):
         super().__init__()
 
     def check_vulnerability(
-            self, analysis_info: IOSAnalysis
+        self, analysis_info: IOSAnalysis
     ) -> Optional[vuln.VulnerabilityDetails]:
         self.logger.debug(f"Checking '{self.__class__.__name__}' vulnerability")
 
@@ -33,8 +33,14 @@ class AllowHttpPlist(categories.ICodeVulnerability):
                 ]
                 if "NSExceptionDomains" in ns_app_trans_dic:
                     for key in ns_app_trans_dic["NSExceptionDomains"]:
-                        if ("NSExceptionAllowsInsecureHTTPLoads" in ns_app_trans_dic["NSExceptionDomains"][key] and
-                                ns_app_trans_dic["NSExceptionDomains"][key]["NSExceptionAllowsInsecureHTTPLoads"] is True):
+                        if (
+                            "NSExceptionAllowsInsecureHTTPLoads"
+                            in ns_app_trans_dic["NSExceptionDomains"][key]
+                            and ns_app_trans_dic["NSExceptionDomains"][key][
+                                "NSExceptionAllowsInsecureHTTPLoads"
+                            ]
+                            is True
+                        ):
 
                             vulnerability_found = True
                             break
