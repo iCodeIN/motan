@@ -9,7 +9,6 @@ import os
 from collections.abc import Iterable
 
 
-
 class AllowHttpPlist(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -32,9 +31,17 @@ class AllowHttpPlist(categories.ICodeVulnerability):
                 ]
                 if "NSExceptionDomains" in ns_app_trans_dic:
                     for key in ns_app_trans_dic["NSExceptionDomains"]:
-                        if isinstance(ns_app_trans_dic["NSExceptionDomains"][key], Iterable) and \
-                                "NSExceptionAllowsInsecureHTTPLoads" in ns_app_trans_dic["NSExceptionDomains"][key] and \
-                                ns_app_trans_dic["NSExceptionDomains"][key]["NSExceptionAllowsInsecureHTTPLoads"] is True:
+                        if (
+                            isinstance(
+                                ns_app_trans_dic["NSExceptionDomains"][key], Iterable
+                            )
+                            and "NSExceptionAllowsInsecureHTTPLoads"
+                            in ns_app_trans_dic["NSExceptionDomains"][key]
+                            and ns_app_trans_dic["NSExceptionDomains"][key][
+                                "NSExceptionAllowsInsecureHTTPLoads"
+                            ]
+                            is True
+                        ):
                             vulnerability_found = True
                             break
 

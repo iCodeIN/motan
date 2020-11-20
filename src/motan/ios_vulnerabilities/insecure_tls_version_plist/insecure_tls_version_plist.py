@@ -9,7 +9,6 @@ import os
 from collections.abc import Iterable
 
 
-
 class InsecureTLSVersionPlist(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -34,7 +33,9 @@ class InsecureTLSVersionPlist(categories.ICodeVulnerability):
                 ]
                 if "NSExceptionDomains" in ns_app_trans_dic:
                     for key in ns_app_trans_dic["NSExceptionDomains"]:
-                        if isinstance(ns_app_trans_dic["NSExceptionDomains"][key], Iterable) and (
+                        if isinstance(
+                            ns_app_trans_dic["NSExceptionDomains"][key], Iterable
+                        ) and (
                             "NSExceptionMinimumTLSVersion"
                             in ns_app_trans_dic["NSExceptionDomains"][key]
                             and ns_app_trans_dic["NSExceptionDomains"][key][

@@ -31,7 +31,9 @@ class NoForwardSecrecyPlist(categories.ICodeVulnerability):
                 ]
                 if "NSExceptionDomains" in ns_app_trans_dic:
                     for key in ns_app_trans_dic["NSExceptionDomains"]:
-                        if isinstance(ns_app_trans_dic["NSExceptionDomains"][key], Iterable) and (
+                        if isinstance(
+                            ns_app_trans_dic["NSExceptionDomains"][key], Iterable
+                        ) and (
                             "NSExceptionRequiresForwardSecrecy"
                             in ns_app_trans_dic["NSExceptionDomains"][key]
                             and ns_app_trans_dic["NSExceptionDomains"][key][
