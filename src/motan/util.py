@@ -106,56 +106,55 @@ def get_list_cpu_type(name_binary):
     return list_cpu_type, list_subtype_cpu
 
 
-def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
-    """
-    Unpacking IPA file
-    """
-    logger.debug(f"Unpacking f{ipa_path}")
+def unpacking_ios_app(ipa_path: str, working_dir: str):
 
-    # create dirs in order to work
-    os.makedirs(output_dir_bin, exist_ok=True)
-
-    # get some information about dir
-    file_ipa_no_ext = ipa_path.rsplit(".", 1)[0]
-    dir_contains_ipa = file_ipa_no_ext.rsplit(os.sep, 1)[0]
-    only_name = file_ipa_no_ext.rsplit(os.sep, 1)[-1]
-    zip_file = os.path.join(working_dir, "{}.zip".format(only_name))
-    output_dir_zip = os.path.join(working_dir, only_name)
-
-    shutil.copy2(ipa_path, zip_file)
-    logger.debug("Extract all zip content")
-    command_zip = ["unzip", "-q", "-o", zip_file, "-d", output_dir_zip]
-
-    subprocess.call(command_zip)
-
-    logger.debug("Unpacking iOS app")
-    list_ff_files = list()
-    for (dirpath, dirnames, filenames) in os.walk(output_dir_zip):
-        list_ff_files += [os.path.join(dirpath, file) for file in filenames]
-
+    zipfile_output = os.path.join(working_dir, f"{os.path.splitext(os.path.basename(ipa_path))[0]}.zip")
+    shutil.copy2(ipa_path, zipfile_output)
+    name_subdir = ""
     name_binary = ""
-    readable_plist = ""
-    for file_inside in list_ff_files:
-        file_split = file_inside.split(os.sep)
+    plist_readable = {}
 
-        # len(file_split) - len(output_dir_zip.split(os.sep)) == 3 and   \
-        if (
-            file_split[-3] == "Payload"
-            and file_split[-1] == file_split[-2].split(".app")[0]
-            and file_split[-2].endswith(".app")
-        ):
+    with zipfile.ZipFile(zipfile_output, "r") as zipfile_output_ipa:
+        for entry in zipfile_output_ipa.infolist():
+            normpath = os.path.normpath(entry.filename)
+            file_split = normpath.split(os.sep)
 
-            # Identify binary file
-            name_binary = "{}_binary".format(file_split[-1])
-            shutil.copy2(file_inside, name_binary)
+            if (
+                    file_split[0] == "Payload"
+                    and len(file_split) > 2
+                    and file_split[1].endswith(".app")
+                    and file_split[2].endswith(".plist")
+                    and file_split[2].lower() == "info.plist"
+            ):
+                name_subdir = file_split[1].split(".app")[0]
+                read_content_plist = zipfile_output_ipa.read(entry)
+                ouput_dir = os.path.join(working_dir, name_subdir)
+                os.makedirs(ouput_dir, exist_ok=True)
 
-        if (
-            file_split[-3] == "Payload"
-            and file_split[-1].endswith(".plist")
-            and file_split[-1].lower() == "info.plist"
-        ):
-            plist_path = file_inside
-            readable_plist = readPlist(plist_path)
+                with open(os.path.join(ouput_dir, "Info.plist"), "wb+") as plist:
+                    plist.write(read_content_plist)
+
+                plist_readable = readPlist(os.path.join(ouput_dir, "Info.plist"))
+                bin_name = plist_readable.get('CFBundleExecutable', '')
+
+    with zipfile.ZipFile(zipfile_output, "r") as zipfile_output_ipa:
+        for entry in zipfile_output_ipa.infolist():
+            normpath = os.path.normpath(entry.filename)
+            file_split = normpath.split(os.sep)
+
+            if (
+                    file_split[0] == "Payload"
+                    and len(file_split) > 2
+                    and file_split[1].endswith(".app")
+                    and file_split[2] == bin_name
+            ):
+                name_subdir = file_split[1].split(".app")[0]
+                ouput_dir = os.path.join(working_dir, name_subdir)
+                binary = zipfile_output_ipa.read(entry)
+                name_binary = os.path.join(ouput_dir, name_subdir)
+                os.makedirs(ouput_dir, exist_ok=True)
+                with open(name_binary, "wb") as binary_output:
+                    binary_output.write(binary)
 
     if name_binary != "":
         try:
@@ -188,16 +187,15 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
                 # otherwise we analyze directly the binary
                 binary_64_name = name_binary
 
-            # move binary to specific path
-            path_bin = os.path.join(output_dir_bin, binary_64_name)
-            shutil.move(binary_64_name, path_bin)
-            return path_bin, readable_plist
+            return binary_64_name, plist_readable
 
         except Exception as e:
             logger.error(e)
+
     else:
         logger.error("Not found binary")
-        return None
+
+    return None, None
 
 
 def delete_support_files_ipa(working_dir_to_delete: str):

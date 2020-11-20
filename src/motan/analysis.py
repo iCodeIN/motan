@@ -112,7 +112,7 @@ class IOSAnalysis(BaseAnalysis):
         self.working_dir = os.path.join(
             os.path.dirname(os.path.dirname(os.path.realpath(__file__))), working_dir
         )
-        self.dir_binary_extraction = self.working_dir
+        # self.dir_binary_extraction = self.working_dir
         self.bin_path = None
         self.plist_readable = None
         self.macho_object = None
@@ -122,7 +122,7 @@ class IOSAnalysis(BaseAnalysis):
         self.logger.info(f"Analyzing iOS application '{self.ipa_path}'")
 
         self.bin_path, self.plist_readable = util.unpacking_ios_app(
-            self.ipa_path, self.dir_binary_extraction, working_dir=self.working_dir
+            self.ipa_path, working_dir=self.working_dir
         )
 
         self.bin_path = Path(self.bin_path)
