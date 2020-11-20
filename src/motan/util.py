@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 
+import glob
 import logging
 import os
 import plistlib
 import re
-import zipfile
-from typing import Iterable, List
 import shutil
 import subprocess
-import glob
-from biplist import readPlist, writePlistToString
-
+import zipfile
+from typing import Iterable, List
 
 from androguard.core.bytecodes.apk import APK
 from androguard.core.bytecodes.dvm import ClassDefItem
+from biplist import readPlist
 
 logger = logging.getLogger(__name__)
 
@@ -112,12 +111,11 @@ def get_list_cpu_type(name_binary):
 
 
 def unpacking_ios_app(ipa_path: str, working_dir: str):
-
+    os.makedirs(working_dir, exist_ok=True)
     zipfile_output = os.path.join(
         working_dir, f"{os.path.splitext(os.path.basename(ipa_path))[0]}.zip"
     )
     shutil.copy2(ipa_path, zipfile_output)
-    name_subdir = ""
     name_binary = ""
     plist_readable = {}
 
@@ -127,21 +125,20 @@ def unpacking_ios_app(ipa_path: str, working_dir: str):
             file_split = normpath.split(os.sep)
 
             if (
-                file_split[0] == "Payload"
-                and len(file_split) > 2
+                len(file_split) == 3
+                and file_split[0] == "Payload"
                 and file_split[1].endswith(".app")
-                and file_split[2].endswith(".plist")
                 and file_split[2].lower() == "info.plist"
             ):
                 name_subdir = file_split[1].split(".app")[0]
                 read_content_plist = zipfile_output_ipa.read(entry)
-                ouput_dir = os.path.join(working_dir, name_subdir)
-                os.makedirs(ouput_dir, exist_ok=True)
+                output_dir = os.path.join(working_dir, name_subdir)
+                os.makedirs(output_dir, exist_ok=True)
 
-                with open(os.path.join(ouput_dir, "Info.plist"), "wb+") as plist:
+                with open(os.path.join(output_dir, "Info.plist"), "wb+") as plist:
                     plist.write(read_content_plist)
 
-                plist_readable = readPlist(os.path.join(ouput_dir, "Info.plist"))
+                plist_readable = readPlist(os.path.join(output_dir, "Info.plist"))
                 bin_name = plist_readable.get("CFBundleExecutable", "")
                 break
 
@@ -150,17 +147,22 @@ def unpacking_ios_app(ipa_path: str, working_dir: str):
             normpath = os.path.normpath(entry.filename)
             file_split = normpath.split(os.sep)
 
+            # encode("cp437") is used because of
+            # https://github.com/python/cpython/blob/a993e901ebe60c38d46ecb31f771d0b4a206828c/Lib/zipfile.py#L1358-L1363
             if (
-                file_split[0] == "Payload"
-                and len(file_split) > 2
+                len(file_split) == 3
+                and file_split[0] == "Payload"
                 and file_split[1].endswith(".app")
-                and file_split[2] == bin_name
+                and (
+                    file_split[2] == bin_name
+                    or file_split[2].encode("cp437") == bin_name.encode()
+                )
             ):
                 name_subdir = file_split[1].split(".app")[0]
-                ouput_dir = os.path.join(working_dir, name_subdir)
+                output_dir = os.path.join(working_dir, name_subdir)
                 binary = zipfile_output_ipa.read(entry)
-                name_binary = os.path.join(ouput_dir, name_subdir)
-                os.makedirs(ouput_dir, exist_ok=True)
+                name_binary = os.path.join(output_dir, name_subdir)
+                os.makedirs(output_dir, exist_ok=True)
                 with open(name_binary, "wb") as binary_output:
                     binary_output.write(binary)
                 break
