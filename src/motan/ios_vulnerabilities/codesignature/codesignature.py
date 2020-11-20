@@ -33,9 +33,14 @@ class CodeSignatureVulnerability(categories.ICodeVulnerability):
                 vulerability_found = True
                 return details
 
+        # if code_signature is not found --> app not signed
+        except lief.not_found as e:
+            vulerability_found = True
+            return details
+
         except Exception as e:
             self.logger.error(
-                f"Error during '{self.__class__.__name__}' vulnerability check: {e}"
+                f"Error during '{self.__class__.__name__}' vulnerability check: {e} {type(e)}"
             )
             raise
 

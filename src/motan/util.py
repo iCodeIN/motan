@@ -137,21 +137,25 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
     readable_plist = ""
     for file_inside in list_ff_files:
         file_split = file_inside.split(os.sep)
+
         # len(file_split) - len(output_dir_zip.split(os.sep)) == 3 and   \
-        if file_split[-1] == file_split[-2].split(".app")[0] and file_split[
-            -2
-        ].endswith(".app"):
+        if file_split[-3] == "Payload" and \
+                file_split[-1] == file_split[-2].split(".app")[0] and \
+                file_split[-2].endswith(".app"):
+
             # Identify binary file
             name_binary = "{}_binary".format(file_split[-1])
             shutil.copy2(file_inside, name_binary)
-        if file_split[-1].endswith(".plist") and file_split[-1].lower() == "info.plist":
+
+        if file_split[-3] == "Payload" and \
+                file_split[-1].endswith(".plist") and \
+                file_split[-1].lower() == "info.plist":
             plist_path = file_inside
             readable_plist = readPlist(plist_path)
 
     if name_binary != "":
         try:
             list_cpu_type, list_subtype_cpu = get_list_cpu_type(name_binary)
-
             # identify cpu type
             if len(list_cpu_type) == 1 and "all" in list_subtype_cpu:
                 cpu_choose = list_cpu_type[0]
@@ -163,27 +167,30 @@ def unpacking_ios_app(ipa_path: str, output_dir_bin: str, working_dir: str):
             logger.debug(
                 "Convert binary to specific architecture {}".format(cpu_choose)
             )
-
-            # get name binary and execute lipo command to extract only 64bit
-            binary_64_name = "{0}_{1}".format(name_binary, cpu_choose)
-            command_conversion = [
-                "lipo",
-                "-thin",
-                cpu_choose,
-                name_binary,
-                "-output",
-                binary_64_name,
-            ]
-            subprocess.call(command_conversion, stdout=subprocess.DEVNULL)
+            # if is a flat binary we can use arm_64
+            if len(list_cpu_type) > 1:
+                # get name binary and execute lipo command to extract only 64bit
+                binary_64_name = "{0}_{1}".format(name_binary, cpu_choose)
+                command_conversion = [
+                    "lipo",
+                    "-thin",
+                    cpu_choose,
+                    name_binary,
+                    "-output",
+                    binary_64_name,
+                ]
+                subprocess.call(command_conversion, stdout=subprocess.DEVNULL)
+            else:
+                # otherwise we analyze directly the binary
+                binary_64_name = name_binary
 
             # move binary to specific path
             path_bin = os.path.join(output_dir_bin, binary_64_name)
             shutil.move(binary_64_name, path_bin)
             return path_bin, readable_plist
+
         except Exception as e:
             logger.error(e)
-        finally:
-            os.remove(name_binary)
     else:
         logger.error("Not found binary")
         return None

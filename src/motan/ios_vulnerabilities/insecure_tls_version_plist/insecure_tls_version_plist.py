@@ -33,17 +33,18 @@ class InsecureTLSVersionPlist(categories.ICodeVulnerability):
                 ns_app_trans_dic = analysis_info.plist_readable[
                     "NSAppTransportSecurity"
                 ]
-                for key in ns_app_trans_dic["NSExceptionDomains"]:
-                    if (
-                        "NSExceptionMinimumTLSVersion"
-                        in ns_app_trans_dic["NSExceptionDomains"][key]
-                        and ns_app_trans_dic["NSExceptionDomains"][key][
+                if "NSExceptionDomains" in ns_app_trans_dic:
+                    for key in ns_app_trans_dic["NSExceptionDomains"]:
+                        if (
                             "NSExceptionMinimumTLSVersion"
-                        ]
-                        in insecure_tls
-                    ):
-                        vulnerability_found = True
-                        break
+                            in ns_app_trans_dic["NSExceptionDomains"][key]
+                            and ns_app_trans_dic["NSExceptionDomains"][key][
+                                "NSExceptionMinimumTLSVersion"
+                            ]
+                            in insecure_tls
+                        ):
+                            vulnerability_found = True
+                            break
 
             if vulnerability_found:
                 return details
