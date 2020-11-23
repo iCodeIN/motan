@@ -44,9 +44,9 @@ class InsecureTLSVersionPlist(categories.IPlistVulnerability):
                             ]
                             in insecure_tls
                         ):
-                            insecure_version = ns_app_trans_dic["NSExceptionDomains"][key].get(
-                                "NSExceptionMinimumTLSVersion"
-                            )
+                            insecure_version = ns_app_trans_dic["NSExceptionDomains"][
+                                key
+                            ].get("NSExceptionMinimumTLSVersion")
                             vulnerability_found = True
                             details.code.append(
                                 vuln.VulnerableCode(
