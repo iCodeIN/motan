@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
 
 
 class PieVulnerability(categories.ICodeVulnerability):
@@ -28,10 +26,8 @@ class PieVulnerability(categories.ICodeVulnerability):
             details.id = self.__class__.__name__
 
             if analysis_info.macho_object.is_pie:
-                vulnerability_found = False
                 return None
             else:
-                vulnerability_found = True
                 return details
 
         except Exception as e:

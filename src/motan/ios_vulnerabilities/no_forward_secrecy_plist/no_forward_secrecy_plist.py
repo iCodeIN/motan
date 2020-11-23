@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+from collections.abc import Iterable
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import os
-from collections.abc import Iterable
 
 
-class NoForwardSecrecyPlist(categories.ICodeVulnerability):
+class NoForwardSecrecyPlist(categories.IPlistVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -42,7 +43,14 @@ class NoForwardSecrecyPlist(categories.ICodeVulnerability):
                             is False
                         ):
                             vulnerability_found = True
-                            break
+                            details.code.append(
+                                vuln.VulnerableCode(
+                                    "NSExceptionRequiresForwardSecrecy is false "
+                                    f"for domain '{key}'",
+                                    "Info.plist",
+                                    "Info.plist",
+                                )
+                            )
 
             if vulnerability_found:
                 return details

@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+import re
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
-import re
 
 
 class InsecureAPI(categories.ICodeVulnerability):
@@ -42,11 +40,16 @@ class InsecureAPI(categories.ICodeVulnerability):
                 "_fopen|_chmod|_chown|_stat|_mktemp",
                 analysis_info.macho_symbols,
             )
-            banned_api = list(set(banned))
-
+            banned_api = sorted(set(banned))
             if len(banned_api) > 0:
                 vulnerability_found = True
-                details.api = ", ".join(banned_api)
+                details.code.append(
+                    vuln.VulnerableCode(
+                        ", ".join(banned_api),
+                        f"{analysis_info.bin_name} binary ({analysis_info.bin_arch})",
+                        f"{analysis_info.bin_name} binary ({analysis_info.bin_arch})",
+                    )
+                )
 
             if vulnerability_found:
                 return details

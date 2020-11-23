@@ -2,8 +2,8 @@
 
 import logging
 import os
+import shutil
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import Optional, List
 
 import lief
@@ -110,10 +110,14 @@ class IOSAnalysis(BaseAnalysis):
         self.keep_files: bool = keep_files
 
         self.working_dir = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))), working_dir
+            os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+            working_dir,
+            os.path.splitext(os.path.basename(self.ipa_path))[0],
         )
-        # self.dir_binary_extraction = self.working_dir
+
         self.bin_path = None
+        self.bin_name = None
+        self.bin_arch = None
         self.plist_readable = None
         self.macho_object = None
         self.macho_symbols = None
@@ -121,20 +125,29 @@ class IOSAnalysis(BaseAnalysis):
     def initialize(self):
         self.logger.info(f"Analyzing iOS application '{self.ipa_path}'")
 
-        self.bin_path, self.plist_readable = util.unpacking_ios_app(
+        self.bin_path, self.plist_readable = util.unpack_ios_app(
             self.ipa_path, working_dir=self.working_dir
         )
 
-        self.bin_path = Path(self.bin_path)
-        self.macho_object = lief.parse(self.bin_path.as_posix())
+        parsed_binary = lief.MachO.parse(
+            self.bin_path, config=lief.MachO.ParserConfig.deep
+        )
+
+        if parsed_binary.size > 1:
+            raise ValueError("Single architecture binary expected, fat binary found")
+
+        self.macho_object = parsed_binary.at(0)
         self.macho_symbols = "\n".join([x.name for x in self.macho_object.symbols])
+
+        self.bin_name = self.macho_object.name
+        self.bin_arch = self.macho_object.header.cpu_type.name
 
     def finalize(self):
         if not self.keep_files:
             self.logger.info(
                 "Deleting intermediate files generated during the iOS analysis"
             )
-            util.delete_support_files_ipa(self.working_dir)
+            shutil.rmtree(self.working_dir)
         else:
             self.logger.info(
                 "Intermediate files generated during the iOS analysis "

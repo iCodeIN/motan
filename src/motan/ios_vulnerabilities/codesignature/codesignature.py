@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+from typing import Optional
+
+import lief
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
 
 
 class CodeSignatureVulnerability(categories.ICodeVulnerability):
@@ -26,21 +26,19 @@ class CodeSignatureVulnerability(categories.ICodeVulnerability):
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
-            if analysis_info.macho_object.code_signature.data_size > 0:
-                vulnerabilty_found = False
-                return None
-            else:
-                vulerability_found = True
-                return details
 
-        # if code_signature is not found --> app not signed
-        except lief.not_found as e:
-            vulerability_found = True
-            return details
+            try:
+                if analysis_info.macho_object.code_signature.data_size > 0:
+                    return None
+                else:
+                    return details
+            except lief.not_found:
+                # code_signature is not found --> app not signed
+                return details
 
         except Exception as e:
             self.logger.error(
-                f"Error during '{self.__class__.__name__}' vulnerability check: {e} {type(e)}"
+                f"Error during '{self.__class__.__name__}' vulnerability check: {e}"
             )
             raise
 

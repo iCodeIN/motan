@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+import re
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
-import re
 
 
 class InsecureRandom(categories.ICodeVulnerability):
@@ -31,12 +29,17 @@ class InsecureRandom(categories.ICodeVulnerability):
             vulnerability_found = False
 
             # TODO add configuration file where the plugin read the name of API
-            random = re.findall("_srando|_random", analysis_info.macho_symbols)
-            random_api = list(set(random))
-
+            random = re.findall("_srand|_random", analysis_info.macho_symbols)
+            random_api = sorted(set(random))
             if len(random_api) > 0:
                 vulnerability_found = True
-                details.api = ", ".join(random_api)
+                details.code.append(
+                    vuln.VulnerableCode(
+                        ", ".join(random_api),
+                        f"{analysis_info.bin_name} binary ({analysis_info.bin_arch})",
+                        f"{analysis_info.bin_name} binary ({analysis_info.bin_arch})",
+                    )
+                )
 
             if vulnerability_found:
                 return details

@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
 
 
 class SymbolsStrippedVulnerability(categories.ICodeVulnerability):
@@ -26,12 +24,14 @@ class SymbolsStrippedVulnerability(categories.ICodeVulnerability):
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
+
             vulnerability_found = True
 
             for i in analysis_info.macho_object.symbols:
                 if i:
                     vulnerability_found = False
                     break
+
             if vulnerability_found:
                 return details
             else:

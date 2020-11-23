@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
 
 
 class EncryptedVulnerability(categories.ICodeVulnerability):
@@ -27,10 +25,8 @@ class EncryptedVulnerability(categories.ICodeVulnerability):
             )
             details.id = self.__class__.__name__
             if bool(analysis_info.macho_object.encryption_info.crypt_id):
-                vulnerability_found = False
                 return None
             else:
-                vulnerability_found = True
                 return details
 
         except Exception as e:

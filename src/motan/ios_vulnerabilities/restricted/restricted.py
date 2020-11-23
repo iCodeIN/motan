@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
 
 
 class RestrictedVulnerability(categories.ICodeVulnerability):

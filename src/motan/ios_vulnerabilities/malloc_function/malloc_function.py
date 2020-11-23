@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+import re
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
-import re
 
 
 class MallocFunction(categories.ICodeVulnerability):
@@ -30,7 +28,7 @@ class MallocFunction(categories.ICodeVulnerability):
 
             vulnerability_found = False
             malloc = re.findall("_malloc", analysis_info.macho_symbols)
-            malloc_api = list(set(malloc))
+            malloc_api = sorted(set(malloc))
 
             if len(malloc_api) > 0:
                 vulnerability_found = True

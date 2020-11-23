@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+from collections.abc import Iterable
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import os
-from collections.abc import Iterable
 
 
-class AllowHttpPlist(categories.ICodeVulnerability):
+class AllowHttpPlist(categories.IPlistVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -43,7 +44,14 @@ class AllowHttpPlist(categories.ICodeVulnerability):
                             is True
                         ):
                             vulnerability_found = True
-                            break
+                            details.code.append(
+                                vuln.VulnerableCode(
+                                    "NSExceptionAllowsInsecureHTTPLoads is true "
+                                    f"for domain '{key}'",
+                                    "Info.plist",
+                                    "Info.plist",
+                                )
+                            )
 
             if vulnerability_found:
                 return details

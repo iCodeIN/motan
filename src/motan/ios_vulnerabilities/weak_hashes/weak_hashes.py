@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+import re
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
-import re
 
 
 class WeakHashes(categories.ICodeVulnerability):
@@ -46,10 +44,16 @@ class WeakHashes(categories.ICodeVulnerability):
                 "SHA1_Update|SHA1_Final",
                 analysis_info.macho_symbols,
             )
-            weak_hashes_api = list(set(weak_hashes))
+            weak_hashes_api = sorted(set(weak_hashes))
             if len(weak_hashes_api) > 0:
                 vulnerability_found = True
-                details.api = ", ".join(weak_hashes_api)
+                details.code.append(
+                    vuln.VulnerableCode(
+                        ", ".join(weak_hashes_api),
+                        f"{analysis_info.bin_name} binary ({analysis_info.bin_arch})",
+                        f"{analysis_info.bin_name} binary ({analysis_info.bin_arch})",
+                    )
+                )
 
             if vulnerability_found:
                 return details

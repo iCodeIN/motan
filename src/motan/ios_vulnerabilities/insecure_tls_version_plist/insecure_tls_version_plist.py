@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+from collections.abc import Iterable
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import os
-from collections.abc import Iterable
 
 
-class InsecureTLSVersionPlist(categories.ICodeVulnerability):
+class InsecureTLSVersionPlist(categories.IPlistVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()
@@ -43,8 +44,18 @@ class InsecureTLSVersionPlist(categories.ICodeVulnerability):
                             ]
                             in insecure_tls
                         ):
+                            insecure_version = ns_app_trans_dic["NSExceptionDomains"][key].get(
+                                "NSExceptionMinimumTLSVersion"
+                            )
                             vulnerability_found = True
-                            break
+                            details.code.append(
+                                vuln.VulnerableCode(
+                                    f"NSExceptionMinimumTLSVersion "
+                                    f"'{insecure_version}' for domain '{key}'",
+                                    "Info.plist",
+                                    "Info.plist",
+                                )
+                            )
 
             if vulnerability_found:
                 return details

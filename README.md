@@ -12,18 +12,6 @@
 **motan** (**mo**bile application s**t**atic **an**alysis) is a modular tool for performing static security assessments of mobile applications. 
 
 
-## Requirements (only for iOS apps)
-
-- [cctools](https://github.com/tpoechtrager/cctools-port)
-
-```sudo apt-get update
-sudo apt-get install clang
-git clone https://github.com/tpoechtrager/cctools-port.git
-cd cctools-port/cctools
-./configure
-make
-sudo make install
-```
 
 ## Usage
 

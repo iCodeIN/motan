@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Optional, List
+import os
+from typing import Optional
+
 import motan.categories as categories
 from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
-import subprocess
-import os
-from pathlib import Path
-import lief
 
 
 class RPathVulnerability(categories.ICodeVulnerability):
@@ -26,11 +24,10 @@ class RPathVulnerability(categories.ICodeVulnerability):
                 os.path.dirname(os.path.realpath(__file__)), analysis_info.language
             )
             details.id = self.__class__.__name__
+
             if not analysis_info.macho_object.has_rpath:
-                vunerability_found = False
                 return None
             else:
-                vunerability_found = True
                 return details
 
         except Exception as e:

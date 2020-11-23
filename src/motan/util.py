@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 
-import glob
 import logging
 import os
 import plistlib
 import re
 import shutil
-import subprocess
 import zipfile
 from typing import Iterable, List
 
+import lief
 from androguard.core.bytecodes.apk import APK
 from androguard.core.bytecodes.dvm import ClassDefItem
 from biplist import readPlist
@@ -74,52 +73,19 @@ def is_class_implementing_interfaces(clazz: ClassDefItem, interfaces: Iterable[s
     return all(interface in clazz.get_interfaces() for interface in interfaces)
 
 
-def get_list_cpu_type(name_binary):
-    """
-    Get CPU types of Fat-Binary
-    """
-    command_check_architecture = ["otool", "-hv", name_binary]
-    process_command_check_arch = subprocess.Popen(
-        command_check_architecture, stdout=subprocess.PIPE
-    )
-    out, err = process_command_check_arch.communicate()
-    out_string = out.decode("utf-8")
-    lines = out_string.split("Mach header")
-    list_architecture = []
-    for line in lines:
-        if len(line) == 2:
-            line = line[1]
-        values = line.strip().split("\n")
-        if len(values) == 2:
-            dict_key_value = dict()
-            values[0] = values[0].strip().split(" ")
-            values[0] = [x for x in values[0] if x != ""]
-            values[1] = values[1].strip().split(" ")
-            values[1] = [x for x in values[1] if x != ""]
-            for index_key in range(0, len(values[0])):
-                if values[0][index_key] != "flags":
-                    dict_key_value[values[0][index_key]] = values[1][index_key]
-                else:
-                    dict_key_value[values[0][index_key]] = values[1][index_key:]
-            list_architecture.append(dict_key_value)
-    list_cpu_type = list()
-    list_subtype_cpu = list()
-    for x in list_architecture:
-        list_cpu_type.append(x["cputype"].lower())
-        list_subtype_cpu.append(x["cpusubtype"].lower())
-    return list_cpu_type, list_subtype_cpu
-
-
-def unpacking_ios_app(ipa_path: str, working_dir: str):
+def unpack_ios_app(ipa_path: str, working_dir: str):
     os.makedirs(working_dir, exist_ok=True)
     zipfile_output = os.path.join(
         working_dir, f"{os.path.splitext(os.path.basename(ipa_path))[0]}.zip"
     )
     shutil.copy2(ipa_path, zipfile_output)
-    name_binary = ""
+    bin_name = ""
+    bin_path = None
     plist_readable = {}
 
     with zipfile.ZipFile(zipfile_output, "r") as zipfile_output_ipa:
+
+        # Look for the Info.plist file and find the binary name (CFBundleExecutable).
         for entry in zipfile_output_ipa.infolist():
             normpath = os.path.normpath(entry.filename)
             file_split = normpath.split(os.sep)
@@ -131,9 +97,10 @@ def unpacking_ios_app(ipa_path: str, working_dir: str):
                 and file_split[2].lower() == "info.plist"
             ):
                 name_subdir = file_split[1].split(".app")[0]
-                read_content_plist = zipfile_output_ipa.read(entry)
                 output_dir = os.path.join(working_dir, name_subdir)
                 os.makedirs(output_dir, exist_ok=True)
+
+                read_content_plist = zipfile_output_ipa.read(entry)
 
                 with open(os.path.join(output_dir, "Info.plist"), "wb+") as plist:
                     plist.write(read_content_plist)
@@ -142,7 +109,7 @@ def unpacking_ios_app(ipa_path: str, working_dir: str):
                 bin_name = plist_readable.get("CFBundleExecutable", "")
                 break
 
-    with zipfile.ZipFile(zipfile_output, "r") as zipfile_output_ipa:
+        # Get the binary file, preferably for arm64 architecture.
         for entry in zipfile_output_ipa.infolist():
             normpath = os.path.normpath(entry.filename)
             file_split = normpath.split(os.sep)
@@ -160,59 +127,35 @@ def unpacking_ios_app(ipa_path: str, working_dir: str):
             ):
                 name_subdir = file_split[1].split(".app")[0]
                 output_dir = os.path.join(working_dir, name_subdir)
-                binary = zipfile_output_ipa.read(entry)
-                name_binary = os.path.join(output_dir, name_subdir)
                 os.makedirs(output_dir, exist_ok=True)
-                with open(name_binary, "wb") as binary_output:
-                    binary_output.write(binary)
+
+                binary_from_zip = zipfile_output_ipa.read(entry)
+                bin_path = os.path.join(output_dir, name_subdir)
+                with open(bin_path, "wb") as binary_output:
+                    binary_output.write(binary_from_zip)
+
+                # NOTE: lipo can also be used to extract the binary from the universal
+                # binary, but cannot be used on Windows and requires to install
+                # additional tools on Linux.
+
+                fat_binary = lief.MachO.parse(
+                    bin_path, config=lief.MachO.ParserConfig.quick
+                )
+
+                for binary in fat_binary:
+                    if binary.header.cpu_type == lief.MachO.CPU_TYPES.ARM64:
+                        # Overwrite the fat binary with the binary for arm64.
+                        binary.write(bin_path)
+                        break
+                else:
+                    # arm64 binary not available, take the first one available.
+                    fat_binary.at(0).write(bin_path)
+
                 break
 
-    if name_binary != "":
-        try:
-            list_cpu_type, list_subtype_cpu = get_list_cpu_type(name_binary)
-            # identify cpu type
-            if len(list_cpu_type) == 1 and "all" in list_subtype_cpu:
-                cpu_choose = list_cpu_type[0]
-            elif "arm64" in list_cpu_type:
-                cpu_choose = "arm64"
-            elif len(list_cpu_type) == 1 and "all" not in list_cpu_type:
-                cpu_choose = "{0}{1}".format(list_cpu_type[0], list_subtype_cpu[0])
-
-            logger.debug(
-                "Convert binary to specific architecture {}".format(cpu_choose)
-            )
-            # if is a flat binary we can use arm_64
-            if len(list_cpu_type) > 1:
-                # get name binary and execute lipo command to extract only 64bit
-                binary_64_name = "{0}_{1}".format(name_binary, cpu_choose)
-                command_conversion = [
-                    "lipo",
-                    "-thin",
-                    cpu_choose,
-                    name_binary,
-                    "-output",
-                    binary_64_name,
-                ]
-                subprocess.call(command_conversion, stdout=subprocess.DEVNULL)
-            else:
-                # otherwise we analyze directly the binary
-                binary_64_name = name_binary
-
-            return binary_64_name, plist_readable
-
-        except Exception as e:
-            logger.error(e)
-
+    if bin_path:
+        return bin_path, plist_readable
     else:
-        logger.error("Not found binary")
+        logger.error("No binary file found inside the iOS app")
 
     return None, None
-
-
-def delete_support_files_ipa(working_dir_to_delete: str):
-    file_list = glob.glob(os.path.join(working_dir_to_delete, "*"))
-    for file_to_delete in file_list:
-        if os.path.isfile(file_to_delete):
-            os.remove(file_to_delete)
-        else:
-            shutil.rmtree(file_to_delete)
