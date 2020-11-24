@@ -3,10 +3,13 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/android" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/ios" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/excelify" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/debuggable_application" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_javascript_enabled" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_connection" isTestSource="false" />
@@ -49,7 +52,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/intent_filter_misconfiguration" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/implicit_intent_service" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/shared_user_id" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/motan/excelify" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/insecure_socket" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/crypto_ecb_cipher" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/crypto_constant_salt" isTestSource="false" />
