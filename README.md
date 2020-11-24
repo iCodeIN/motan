@@ -5,7 +5,6 @@
 [![Ubuntu Build Status](https://github.com/Dado1513/motan/workflows/Ubuntu/badge.svg)](https://github.com/Dado1513/motan/actions?query=workflow%3AUbuntu)
 [![Windows Build Status](https://github.com/Dado1513/motan/workflows/Windows/badge.svg)](https://github.com/Dado1513/motan/actions?query=workflow%3AWindows)
 [![MacOS Build Status](https://github.com/Dado1513/motan/workflows/MacOS/badge.svg)](https://github.com/Dado1513/motan/actions?query=workflow%3AMacOS)
-[![Python Version](https://img.shields.io/badge/Python-3.7%2B-green.svg?logo=python&logoColor=white)](https://www.python.org/downloads/)
 
 
 
