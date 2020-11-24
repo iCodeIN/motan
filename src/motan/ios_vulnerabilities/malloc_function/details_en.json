@@ -1,7 +1,7 @@
 {
   "name": "Malloc Function",
   "description": "The binary may use malloc function",
-  "remediation": "Use calloc function",
+  "remediation": "Use calloc function instead of malloc function",
   "references": {
     "text": "Further Information on [[1]] [[2]]",
     "links": {

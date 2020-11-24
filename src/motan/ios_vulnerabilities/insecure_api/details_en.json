@@ -1,7 +1,7 @@
 {
   "name": "Insecure APIs",
   "description": "Binary make us of insecure APIs",
-  "remediation": "",
+  "remediation": "Update insecure APIs with newer APIs\n",
   "references": {
     "text": "Further Information on [[1]]",
     "links": {

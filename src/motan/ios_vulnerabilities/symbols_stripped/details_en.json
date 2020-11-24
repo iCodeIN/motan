@@ -3,11 +3,10 @@
   "description": "Symbols are available",
   "remediation": "To strip debugging symbols, set Strip Debug Symbols During Copy to YES via the project\\'s build settings.",
   "references": {
-    "text": "Further Information [[1]] [[2]] [[3]]",
+    "text": "Further Information [[1]] [[2]]",
     "links": {
-      "1": "https://github.com/flutter/flutter/issues/18693",
-      "2": "https://www.guardsquare.com/en/blog/ios-app-security-introduction-objective-c-metadata-symbols-swift-objective-c-apps-part-1-2",
-      "3": "https://stackoverflow.com/questions/46077700/what-does-strip-swift-symbols-in-xcode-actually-do/47368306"
+      "1": "https://www.guardsquare.com/en/blog/ios-app-security-introduction-objective-c-metadata-symbols-swift-objective-c-apps-part-1-2",
+      "2": "https://stackoverflow.com/questions/46077700/what-does-strip-swift-symbols-in-xcode-actually-do/47368306"
     }
   }
 }

@@ -1,11 +1,13 @@
 {
   "name": "Code Signature",
   "description": "Questo binario non ha una firma del codice.",
-  "remediation": "",
+  "remediation": "Firmare l'applicativo",
   "references": {
-    "text": "Maggiori Informazioni [[1]]",
+    "text": "Maggiori Informazioni [[1]] [[2]]",
     "links": {
-      "1": "https://developer.apple.com/documentation/xcode/using_the_latest_code_signature_format"
+      "1": "https://developer.apple.com/documentation/xcode/using_the_latest_code_signature_format",
+      "2": "https://github.com/OWASP/owasp-mstg/blob/master/Document/0x06i-Testing-Code-Quality-and-Build-Settings.md"
+
     }
   }
 }
