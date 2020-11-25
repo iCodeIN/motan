@@ -1,9 +1,9 @@
 {
-  "name": "Malloc Function",
-  "description": "The binary may use malloc function",
-  "remediation": "Use calloc function instead of malloc function",
+  "name": "Malloc function usage",
+  "description": "The binary may use `malloc` function.",
+  "remediation": "Use `calloc` function instead of `malloc` function.",
   "references": {
-    "text": "Further Information on [[1]] [[2]]",
+    "text": "Further information can be found in [[1]] and [[2]].",
     "links": {
       "1": "https://azeria-labs.com/heap-overflows-and-the-ios-kernel-heap/",
       "2": "https://dev.to/awwsmm/unfixable-ios-vulnerability-affects-7-generations-of-devices-3dg2"

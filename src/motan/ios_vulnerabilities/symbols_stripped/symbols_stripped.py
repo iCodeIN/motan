@@ -9,7 +9,7 @@ from motan import vulnerability as vuln
 from motan.analysis import IOSAnalysis
 
 
-class SymbolsStrippedVulnerability(categories.ICodeVulnerability):
+class SymbolsStripped(categories.ICodeVulnerability):
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         super().__init__()

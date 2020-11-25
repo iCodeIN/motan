@@ -64,6 +64,25 @@
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_override_url" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_intercept_request" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/motan/android_vulnerabilities/webview_ignore_ssl_error" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/allow_http_plist" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/arc_flag_missing" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/code_signature_missing" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/encryption_missing" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/insecure_api" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/insecure_connection_plist" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/insecure_random" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/insecure_tls_version_plist" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/logging_function" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/malloc_function" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/no_forward_secrecy_plist" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/nx_bit_missing" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/pie_flag_missing" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/restricted_segment_missing" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/rpath_set" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/stack_canary_missing" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/symbols_stripped" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/weak_crypto" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/motan/ios_vulnerabilities/weak_hashes" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (motan)" jdkType="Python SDK" />

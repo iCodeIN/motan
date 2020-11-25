@@ -3,6 +3,7 @@
 import logging
 import os
 import shutil
+import tempfile
 from abc import ABC, abstractmethod
 from typing import Optional, List
 
@@ -57,6 +58,7 @@ class AndroidAnalysis(BaseAnalysis):
 
         self._apk_analysis: Optional[APK] = None
         self._dex_analysis: Optional[AndroguardAnalysis] = None
+        self._native_libs: List[str] = []
 
     def initialize(self):
         self.logger.info(f"Analyzing Android application '{self.apk_path}'")
@@ -81,18 +83,31 @@ class AndroidAnalysis(BaseAnalysis):
 
     def perform_androguard_analysis(self) -> None:
         self._apk_analysis, _, self._dex_analysis = AnalyzeAPK(self.apk_path)
+        self._native_libs = [
+            file_path
+            for file_path, file_type in self._apk_analysis.get_files_types().items()
+            if file_type.startswith("ELF ")
+        ]
 
     def get_apk_analysis(self) -> APK:
-        if not self._apk_analysis or not self._dex_analysis:
+        if not self._apk_analysis:
             self.perform_androguard_analysis()
 
         return self._apk_analysis
 
     def get_dex_analysis(self) -> AndroguardAnalysis:
-        if not self._apk_analysis or not self._dex_analysis:
+        if not self._dex_analysis:
             self.perform_androguard_analysis()
 
         return self._dex_analysis
+
+    def get_native_libs(self) -> List[str]:
+        if not self._apk_analysis:
+            # We check _apk_analysis instead of _native_libs since _native_libs could
+            # be empty even after the analysis (not all apps use native libraries).
+            self.perform_androguard_analysis()
+
+        return self._native_libs
 
 
 class IOSAnalysis(BaseAnalysis):
@@ -101,7 +116,7 @@ class IOSAnalysis(BaseAnalysis):
         ipa_path: str,
         language: str = "en",
         keep_files: bool = False,
-        working_dir: str = "working_dir_motan_ios",
+        working_dir: str = None,
     ):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         super().__init__(language)
@@ -109,11 +124,13 @@ class IOSAnalysis(BaseAnalysis):
         self.ipa_path: str = ipa_path
         self.keep_files: bool = keep_files
 
-        self.working_dir = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-            working_dir,
-            os.path.splitext(os.path.basename(self.ipa_path))[0],
-        )
+        # If no working directory is specified, use a temporary directory.
+        if not working_dir:
+            working_dir = tempfile.gettempdir()
+
+        self.working_dir = os.path.join(working_dir, "motan_working_dir")
+
+        os.makedirs(self.working_dir, exist_ok=True)
 
         self.bin_path = None
         self.bin_name = None

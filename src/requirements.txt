@@ -1,4 +1,4 @@
-git+https://github.com/androguard/androguard@99e48e7bfdd88c2912397b40ad7fc47ed7fae547
+androguard[magic]@git+https://github.com/androguard/androguard@8d091cbb309c0c50bf239f805cc1e0931b8dcddc
 biplist==1.0.3
 lief==0.10.1
 marshmallow-dataclass==8.0.0

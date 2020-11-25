@@ -1,9 +1,8 @@
 {
-  "name": "Logging Function",
-  "description": "Binary make us of Logging Function",
-  "remediation": "",
+  "name": "Logging function(s) usage",
+  "description": "Binary makes use of logging function(s).",
   "references": {
-    "text": "Further Information on [[1]]",
+    "text": "Further information can be found in [[1]].",
     "links": {
       "1": "https://mobile-security.gitbook.io/mobile-security-testing-guide/ios-testing-guide/0x06i-testing-code-quality-and-build-settings"
     }

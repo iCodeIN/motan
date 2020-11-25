@@ -4,7 +4,6 @@ import logging
 import os
 import plistlib
 import re
-import shutil
 import zipfile
 from typing import Iterable, List
 
@@ -74,19 +73,14 @@ def is_class_implementing_interfaces(clazz: ClassDefItem, interfaces: Iterable[s
 
 
 def unpack_ios_app(ipa_path: str, working_dir: str):
-    os.makedirs(working_dir, exist_ok=True)
-    zipfile_output = os.path.join(
-        working_dir, f"{os.path.splitext(os.path.basename(ipa_path))[0]}.zip"
-    )
-    shutil.copy2(ipa_path, zipfile_output)
     bin_name = ""
     bin_path = None
     plist_readable = {}
 
-    with zipfile.ZipFile(zipfile_output, "r") as zipfile_output_ipa:
+    with zipfile.ZipFile(ipa_path, "r") as zipfile_ipa:
 
         # Look for the Info.plist file and find the binary name (CFBundleExecutable).
-        for entry in zipfile_output_ipa.infolist():
+        for entry in zipfile_ipa.infolist():
             normpath = os.path.normpath(entry.filename)
             file_split = normpath.split(os.sep)
 
@@ -100,7 +94,7 @@ def unpack_ios_app(ipa_path: str, working_dir: str):
                 output_dir = os.path.join(working_dir, name_subdir)
                 os.makedirs(output_dir, exist_ok=True)
 
-                read_content_plist = zipfile_output_ipa.read(entry)
+                read_content_plist = zipfile_ipa.read(entry)
 
                 with open(os.path.join(output_dir, "Info.plist"), "wb+") as plist:
                     plist.write(read_content_plist)
@@ -110,7 +104,7 @@ def unpack_ios_app(ipa_path: str, working_dir: str):
                 break
 
         # Get the binary file, preferably for arm64 architecture.
-        for entry in zipfile_output_ipa.infolist():
+        for entry in zipfile_ipa.infolist():
             normpath = os.path.normpath(entry.filename)
             file_split = normpath.split(os.sep)
 
@@ -129,7 +123,7 @@ def unpack_ios_app(ipa_path: str, working_dir: str):
                 output_dir = os.path.join(working_dir, name_subdir)
                 os.makedirs(output_dir, exist_ok=True)
 
-                binary_from_zip = zipfile_output_ipa.read(entry)
+                binary_from_zip = zipfile_ipa.read(entry)
                 bin_path = os.path.join(output_dir, name_subdir)
                 with open(bin_path, "wb") as binary_output:
                     binary_output.write(binary_from_zip)
