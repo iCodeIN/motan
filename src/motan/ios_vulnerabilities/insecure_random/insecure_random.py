@@ -28,7 +28,7 @@ class InsecureRandom(categories.ICodeVulnerability):
 
             vulnerability_found = False
 
-            # TODO add configuration file where the plugin read the name of API
+            # TODO: add a configuration file from where to read the API(s).
             random = re.findall("_srand|_random", analysis_info.macho_symbols)
             random_api = sorted(set(random))
             if len(random_api) > 0:

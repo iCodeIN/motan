@@ -10,7 +10,6 @@
     "scope": "Unchanged",
     "confidentiality_impact": "Low",
     "integrity_impact": "Low",
-    "availability_impact": "Low"
+    "availability_impact": "None"
   }
 }
-

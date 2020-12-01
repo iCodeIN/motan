@@ -28,7 +28,7 @@ class InsecureAPI(categories.ICodeVulnerability):
 
             vulnerability_found = False
 
-            # TODO add configuration file where the plugin read the name of API
+            # TODO: add a configuration file from where to read the API(s).
             banned = re.findall(
                 "_alloca|_gets|_memcpy|_printf|_scanf|"
                 "_sprintf|_sscanf|_strcat|"

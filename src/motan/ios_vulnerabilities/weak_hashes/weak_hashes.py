@@ -28,7 +28,7 @@ class WeakHashes(categories.ICodeVulnerability):
 
             vulnerability_found = False
 
-            # TODO add configuration file where the plugin read the name of API
+            # TODO: add a configuration file from where to read the API(s).
             weak_hashes = re.findall(
                 "CC_MD2_Init|CC_MD2_Update|"
                 "CC_MD2_Final|CC_MD2|MD2_Init|"

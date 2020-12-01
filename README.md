@@ -65,7 +65,7 @@ installed correctly:
 
 ```Shell
 $ docker run --rm -it motan --help
-usage: python3 -m motan.cli [-h] [-l {en,it}] [-i] [--fail-fast] [-t TIMEOUT]
+usage: python3 -m cli [-h] [-l {en,it}] [-i] [--fail-fast] [-t TIMEOUT]
 ...
 ```
 
@@ -117,8 +117,8 @@ correctly:
 $ cd src/
 $ # The following command has to be executed always from motan/src/ directory
 $ # or by adding motan/src/ directory to PYTHONPATH environment variable.
-$ python3 -m motan.cli --help
-usage: python3 -m motan.cli [-h] [-l {en,it}] [-i] [--fail-fast] [-t TIMEOUT]
+$ python3 -m cli --help
+usage: python3 -m cli [-h] [-l {en,it}] [-i] [--fail-fast] [-t TIMEOUT]
 ...
 ```
 

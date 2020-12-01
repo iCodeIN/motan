@@ -28,7 +28,7 @@ class LoggingFunction(categories.ICodeVulnerability):
 
             vulnerability_found = False
 
-            # TODO add configuration file where the plugin read the name of API
+            # TODO: add a configuration file from where to read the API(s).
             debug = re.findall(
                 "_NSLog|_debugPrint|_println|_print|_dump", analysis_info.macho_symbols
             )

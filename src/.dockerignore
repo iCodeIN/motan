@@ -1,0 +1,4 @@
+**/*.pyc
+**/__pycache__
+src/motan/excelify/
+src/test/

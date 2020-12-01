@@ -8,9 +8,8 @@
     "privileges_required": "None",
     "user_interaction": "None",
     "scope": "Unchanged",
-    "confidentiality_impact": "High",
+    "confidentiality_impact": "None",
     "integrity_impact": "High",
-    "availability_impact": "High"
+    "availability_impact": "None"
   }
 }
-

@@ -28,7 +28,7 @@ class WeakCrypto(categories.ICodeVulnerability):
 
             vulnerability_found = False
 
-            # TODO add configuration file where the plugin read the name of API
+            # TODO: add a configuration file from where to read the API(s).
             weak_crypto = re.findall(
                 "kCCAlgorithmDES|kCCAlgorithm3DES|kCCAlgorithmRC2|"
                 "kCCAlgorithmRC4|kCCOptionECBMode|kCCOptionCBCMode",

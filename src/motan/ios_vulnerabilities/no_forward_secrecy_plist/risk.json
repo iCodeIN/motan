@@ -9,8 +9,7 @@
     "user_interaction": "None",
     "scope": "Unchanged",
     "confidentiality_impact": "High",
-    "integrity_impact": "High",
-    "availability_impact": "High"
+    "integrity_impact": "Low",
+    "availability_impact": "None"
   }
 }
-

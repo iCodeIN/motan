@@ -30,7 +30,7 @@ logging.getLogger("androguard").level = logging.ERROR
 
 def perform_analysis_without_timeout(
     input_app_path: str,
-    language: str,
+    language: str = "en",
     ignore_libs: bool = False,
     fail_fast: bool = False,
     keep_files: bool = False,
@@ -150,7 +150,7 @@ def perform_analysis_without_timeout(
 
 def perform_analysis_with_timeout(
     input_app_path: str,
-    language: str,
+    language: str = "en",
     ignore_libs: bool = False,
     fail_fast: bool = False,
     keep_files: bool = False,
