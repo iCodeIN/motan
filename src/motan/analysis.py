@@ -158,21 +158,21 @@ class AndroidAnalysis(BaseAnalysis):
 
             if len(all_classes) > 0:
                 non_ascii_class_percentage = (
-                        100 * len(non_ascii_class_names) / len(all_classes)
+                    100 * len(non_ascii_class_names) / len(all_classes)
                 )
             else:
                 non_ascii_class_percentage = 0
 
             if len(all_fields) > 0:
                 non_ascii_field_percentage = (
-                        100 * len(non_ascii_field_names) / len(all_fields)
+                    100 * len(non_ascii_field_names) / len(all_fields)
                 )
             else:
                 non_ascii_field_percentage = 0
 
             if len(all_methods) > 0:
                 non_ascii_method_percentage = (
-                        100 * len(non_ascii_method_names) / len(all_methods)
+                    100 * len(non_ascii_method_names) / len(all_methods)
                 )
             else:
                 non_ascii_method_percentage = 0
@@ -249,7 +249,7 @@ class AndroidAnalysis(BaseAnalysis):
 
             if len(all_methods) > 0:
                 short_method_percentage = (
-                        100 * len(short_method_names) / len(all_methods)
+                    100 * len(short_method_names) / len(all_methods)
                 )
             else:
                 short_method_percentage = 0
