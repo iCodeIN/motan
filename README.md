@@ -132,6 +132,375 @@ information.
 *TBD*
 
 
+## ❱ Vulnerabilities
+
+*TBD*
+
+### ❱ Android Vulnerabilities
+
+### [access_device_id]()
+>
+>
+>
+
+### [access_internet_without_permission]()
+>
+>
+>
+
+### [access_mock_location]()
+>
+>
+>
+
+### [allow_all_hostname]()
+>
+>
+>
+
+### [backup_enabled]()
+>
+>
+>
+
+### [base64_string]()
+>
+>
+>
+
+### [base64_url]()
+>
+>
+>
+
+### [cordova_access_origin_no_csp]()
+>
+>
+>
+
+### [cordova_access_origin_with_csp]()
+>
+>
+>
+
+### [cordova_allow_intent_all_https]()
+>
+>
+>
+
+### [cordova_allow_intent_wildcard]()
+>
+>
+>
+
+### [cordova_allow_navigation_all_https]()
+>
+>
+>
+
+### [cordova_allow_navigation_wildcard]()
+>
+>
+>
+
+### [cordova_no_csp_access_issue]()
+>
+>
+>
+
+### [cordova_no_csp_access_ok]()
+>
+>
+>
+
+### [crypto_constant_iv]()
+>
+>
+>
+
+### [crypto_constant_key]()
+>
+>
+>
+
+### [crypto_constant_salt]()
+>
+>
+>
+
+### [crypto_ecb_cipher]()
+>
+>
+>
+
+### [crypto_keystore_entry_without_password]()
+>
+>
+>
+
+### [crypto_small_iteration_count]()
+>
+>
+>
+
+### [default_scheme_http]()
+>
+>
+>
+
+### [dynamic_code_loading]()
+>
+>
+>
+
+### [empty_permission_group]()
+>
+>
+>
+
+### [exported_component]()
+>
+>
+>
+
+### [exported_content_provider]()
+>
+>
+>
+
+### [exported_without_prefix]()
+>
+>
+>
+
+### [external_storage]()
+>
+>
+>
+
+### [implicit_intent_service]()
+>
+>
+>
+
+### [insecure_connection]()
+>
+>
+>
+
+### [insecure_hostname_verifier]()
+>
+>
+>
+
+### [insecure_socket]()
+>
+>
+>
+
+### [insecure_socket_factory]()
+>
+>
+>
+
+### [intent_filter_misconfiguration]()
+>
+>
+>
+
+### [invalid_server_certificate]()
+>
+>
+>
+
+### [keystore_without_password]()
+>
+>
+>
+
+### [obfuscation_low]()
+>
+>
+>
+
+### [obfuscation_missing]()
+>
+>
+>
+
+### [permission_dangerous]()
+>
+>
+>
+
+### [permission_normal]()
+>
+>
+>
+
+### [runtime_command]()
+>
+>
+>
+
+### [runtime_command_root]()
+>
+>
+>
+
+### [send_sms]()
+>
+>
+>
+
+### [shared_user_id]()
+>
+>
+>
+
+### [sqlite_exec_sql]()
+>
+>
+>
+
+### [system_permission_usage]()
+>
+>
+>
+
+### [webview_allow_file_access]()
+>
+>
+>
+
+### [webview_ignore_ssl_error]()
+>
+>
+>
+
+### [webview_intercept_request]()
+>
+>
+>
+
+### [webview_javascript_enabled]()
+>
+>
+>
+
+### [webview_javascript_interface]()
+>
+>
+>
+
+### [webview_override_url]()
+>
+>
+>
+
+### [world_readable_writable]()
+>
+>
+>
+
+
+### ❱ iOS Vulnerabilities
+
+### [allow_http_plist]()
+>
+>
+>
+
+### [arc_flag_missing]()
+>
+>
+>
+
+### [code_signature_missing]()
+>
+>
+>
+
+### [encryption_missing]()
+>
+>
+>
+
+### [insecure_api]()
+>
+>
+>
+
+### [insecure_connection_plist]()
+>
+>
+>
+
+### [insecure_random]()
+>
+>
+>
+
+### [insecure_tls_version_plist]()
+>
+>
+>
+
+### [logging_function]()
+>
+>
+>
+
+### [malloc_function]()
+>
+>
+>
+
+### [no_forward_secrecy_plist]()
+>
+>
+>
+
+### [nx_bit_missing]()
+>
+>
+>
+
+### [pie_flag_missing]()
+>
+>
+>
+
+### [restricted_segment_missing]()
+>
+>
+>
+
+### [rpath_set]()
+>
+>
+>
+
+### [stack_canary_missing]()
+>
+>
+>
+
+### [symbols_stripped]()
+>
+>
+>
+
+### [weak_crypto]()
+>
+>
+>
+
+### [weak_hashes]()
+>
+>
+>
+
 
 ## ❱ Contributing
 
