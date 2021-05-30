@@ -22,7 +22,7 @@ def get_cmd_args(args: List[str] = None):
     languages = ["en", "it"]
 
     parser = argparse.ArgumentParser(
-        prog="python3 -m cli",
+        prog="python3 -m motan.cli",
         description="Find the security vulnerabilities of a mobile application "
         "without needing its source code.",
     )
