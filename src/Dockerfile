@@ -7,7 +7,7 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip && \
 
 # Copy the needed files.
 COPY ./motan/ /motan/motan/
-COPY ./cli.py /motan/
+COPY ./cli.py /motan/motan/
 
 # Set the working directory (to be used when mounting files from the host).
 WORKDIR /workdir
@@ -16,4 +16,4 @@ VOLUME /workidr
 # Set the entrypoint to motan command line interface.
 ENV PYTHONPATH="/motan"
 
-ENTRYPOINT ["python3", "-m", "cli"]
+ENTRYPOINT ["python3", "-m", "motan.cli"]
